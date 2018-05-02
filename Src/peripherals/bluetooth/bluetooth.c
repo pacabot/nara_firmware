@@ -200,5 +200,5 @@ int isBluetoothEvent(char *evnt)
 
 void bluetoothTest(void)
 {
-    bluetoothPrintf("hello ZHONX_III, nb send = %d\r\n", 12345);
+    bluetoothPrintf("hello NARA, nb send = %d\r\n", 12345);
 }

@@ -19,8 +19,8 @@
 *.swp
 *.swo
 *.orig
-/Debug/
-/Release/
+/Debug/*
+/Release/*
 
 *.gpdsc
 

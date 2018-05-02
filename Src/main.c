@@ -121,6 +121,9 @@ int main(void)
   MX_TIM7_Init();
   /* USER CODE BEGIN 2 */
 
+  printf("HELLO NARA WORLD \n\r");
+  HAL_Delay(1000);
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
