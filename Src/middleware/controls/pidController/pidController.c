@@ -1,0 +1,46 @@
+/**************************************************************************/
+/*!
+ @file     PID.c
+ @author  PLF (PACABOT)
+ @date
+ @version  0.0
+ */
+/**************************************************************************/
+#include <string.h>
+#include <stdio.h>
+#include <stdint.h>
+
+#include "stm32h7xx_hal.h"
+
+#include "stdbool.h"
+#include <arm_math.h>
+
+#include "config/basetypes.h"
+
+#include <middleware/controls/mainControl/mainControl.h>
+
+#include <middleware/controls/pidController/pidController.h>
+
+/* extern variables ---------------------------------------------------------*/
+/* global variables ---------------------------------------------------------*/
+
+GPIO_InitTypeDef GPIO_InitStruct;
+
+void pidControllerInit(arm_pid_instance_f32 * instance);
+void pidControllerReset(arm_pid_instance_f32 * instance);
+float32_t pidController(arm_pid_instance_f32 * instance, float32_t error);
+
+void pidControllerInit(arm_pid_instance_f32 * instance)
+{
+    arm_pid_init_f32(instance, 1);
+}
+
+void pidControllerReset(arm_pid_instance_f32 * instance)
+{
+    arm_pid_reset_f32(instance);
+}
+
+float32_t pidController(arm_pid_instance_f32 * instance, float32_t error)
+{
+    return (arm_pid_f32(instance, error));
+}
