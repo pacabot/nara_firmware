@@ -52,7 +52,8 @@ int mainControlInit(void)
 {
     pid_loop.start_state = FALSE;
 
-    ROTATION_DIAMETER = sqrt(pow(WHEELS_DISTANCE, 2) + pow(WHEELS_SPACING, 2));
+//    ROTATION_DIAMETER = sqrt(pow(WHEELS_DISTANCE, 2) + pow(WHEELS_SPACING, 2));
+    ROTATION_DIAMETER = WHEELS_DISTANCE;
 
     speedControlInit();
     positionControlInit();

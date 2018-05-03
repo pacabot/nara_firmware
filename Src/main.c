@@ -47,7 +47,7 @@
 #include "gpio.h"
 
 /* USER CODE BEGIN Includes */
-
+#include "peripherals/telemeters/telemeters.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -123,6 +123,8 @@ int main(void)
 
   printf("HELLO NARA WORLD \n\r");
   HAL_Delay(1000);
+
+  telemeters_Test();
 
   /* USER CODE END 2 */
 
