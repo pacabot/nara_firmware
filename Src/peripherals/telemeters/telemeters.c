@@ -82,12 +82,6 @@ typedef enum
 
 char *RangingConfigTxt[3] = {"LR", "HS", "HA"};
 
-typedef enum {
-	RANGE_VALUE     = 0, /*!< Range displayed in cm */
-	BAR_GRAPH       = 1, /*!< Range displayed as a bar graph : one bar per sensor */
-} DemoMode_e;
-char *DemoModeTxt[2] = {"rng", "bar"};
-
 /**
  * Global ranging struct
  */
@@ -139,7 +133,8 @@ char WelcomeMsg[]="Hi I am Ranging VL53L0X \n";
  * Set err on display and loop forever
  * @param err Error case code
  */
-void HandleError(int err){
+void HandleError(int err)
+{
 	char msg[16];
 	sprintf(msg,"Er%d", err);
 	printf(msg);
@@ -147,7 +142,8 @@ void HandleError(int err){
 	while(1){};
 }
 
-int telemetersResetId(int DevNo, int state) {
+int telemetersResetId(int DevNo, int state)
+{
 	int status = 0;
 	switch( DevNo )
 	{
@@ -212,37 +208,44 @@ int DetectSensors(int SetDisplay) {
 		HAL_Delay(2);
 		FinalAddress=0x52+(i+1)*2;
 
-		do {
+		do
+		{
 			/* Set I2C standard mode (400 KHz) before doing the first register access */
 			if (status == VL53L0X_ERROR_NONE)
 				status = VL53L0X_WrByte(pDev, 0x88, 0x00);
 
 			/* Try to read one register using default 0x52 address */
 			status = VL53L0X_RdWord(pDev, VL53L0X_REG_IDENTIFICATION_MODEL_ID, &Id);
-			if (status) {
+			if (status)
+			{
 				debug_printf("#%d Read id fail\n", i);
 				break;
 			}
-			if (Id == 0xEEAA) {
+			if (Id == 0xEEAA)
+			{
 				/* Sensor is found => Change its I2C address to final one */
 				status = VL53L0X_SetDeviceAddress(pDev,FinalAddress);
-				if (status != 0) {
+				if (status != 0)
+				{
 					debug_printf("#i VL53L0X_SetDeviceAddress fail\n", i);
 					break;
 				}
 				pDev->I2cDevAddr = FinalAddress;
 				/* Check all is OK with the new I2C address and initialize the sensor */
 				status = VL53L0X_RdWord(pDev, VL53L0X_REG_IDENTIFICATION_MODEL_ID, &Id);
-				if (status != 0) {
+				if (status != 0)
+				{
 					debug_printf("#i VL53L0X_RdWord fail\n", i);
 					break;
 				}
 
 				status = VL53L0X_DataInit(pDev);
-				if( status == 0 ){
+				if( status == 0 )
+				{
 					pDev->Present = 1;
 				}
-				else{
+				else
+				{
 					debug_printf("VL53L0X_DataInit %d fail\n", i);
 					break;
 				}
@@ -251,20 +254,25 @@ int DetectSensors(int SetDisplay) {
 				nDevMask |= 1 << i;
 				pDev->Present = 1;
 			}
-			else {
+			else
+			{
 				debug_printf("#%d unknown ID %x\n", i, Id);
 				status = 1;
 			}
 		} while (0);
 		/* if fail r can't use for any reason then put the  device back to reset */
-		if (status) {
+		if (status)
+		{
 			telemetersResetId(i, 0);
 		}
 	}
 	/* Display detected sensor(s) */
-	if( SetDisplay ){
-		for(i=0; i < 6; i++){
-			if( VL53L0XDevs[i].Present ){
+	if( SetDisplay )
+	{
+		for(i=0; i < 6; i++)
+		{
+			if( VL53L0XDevs[i].Present )
+			{
 				PresentMsg[i+1]=VL53L0XDevs[i].DevLetter;
 			}
 		}
@@ -294,39 +302,48 @@ void SetupSingleShot(RangingConfig_e rangingConfig){
 	uint8_t preRangeVcselPeriod = 14;
 	uint8_t finalRangeVcselPeriod = 10;
 
-	for( i=0; i<3; i++){
-		if( VL53L0XDevs[i].Present){
+	for( i = 0; i < 6; i++)
+	{
+		if( VL53L0XDevs[i].Present)
+		{
 			status=VL53L0X_StaticInit(&VL53L0XDevs[i]);
-			if( status ){
+			if( status )
+			{
 				debug_printf("VL53L0X_StaticInit %d failed\n",i);
 			}
 
 			status = VL53L0X_PerformRefCalibration(&VL53L0XDevs[i], &VhvSettings, &PhaseCal);
-			if( status ){
+			if( status )
+			{
 				debug_printf("VL53L0X_PerformRefCalibration failed\n");
 			}
 
 			status = VL53L0X_PerformRefSpadManagement(&VL53L0XDevs[i], &refSpadCount, &isApertureSpads);
-			if( status ){
+			if( status )
+			{
 				debug_printf("VL53L0X_PerformRefSpadManagement failed\n");
 			}
 
 			status = VL53L0X_SetDeviceMode(&VL53L0XDevs[i], VL53L0X_DEVICEMODE_SINGLE_RANGING); // Setup in single ranging mode
-			if( status ){
+			if( status )
+			{
 				debug_printf("VL53L0X_SetDeviceMode failed\n");
 			}
 
 			status = VL53L0X_SetLimitCheckEnable(&VL53L0XDevs[i], VL53L0X_CHECKENABLE_SIGMA_FINAL_RANGE, 1); // Enable Sigma limit
-			if( status ){
+			if( status )
+			{
 				debug_printf("VL53L0X_SetLimitCheckEnable failed\n");
 			}
 
 			status = VL53L0X_SetLimitCheckEnable(&VL53L0XDevs[i], VL53L0X_CHECKENABLE_SIGNAL_RATE_FINAL_RANGE, 1); // Enable Signa limit
-			if( status ){
+			if( status )
+			{
 				debug_printf("VL53L0X_SetLimitCheckEnable failed\n");
 			}
 			/* Ranging configuration */
-			switch(rangingConfig) {
+			switch(rangingConfig)
+			{
 			case LONG_RANGE:
 				signalLimit = (FixPoint1616_t)(0.1*65536);
 				sigmaLimit = (FixPoint1616_t)(60*65536);
@@ -387,96 +404,51 @@ void SetupSingleShot(RangingConfig_e rangingConfig){
 	}
 }
 
-char RangeToLetter(VL53L0X_Dev_t *pDev, VL53L0X_RangingMeasurementData_t *pRange){
+char RangeToLetter(VL53L0X_Dev_t *pDev, VL53L0X_RangingMeasurementData_t *pRange)
+{
 	char c;
-	if( pRange->RangeStatus == 0 ){
-		if( pDev->LeakyRange < RangeLow ){
+	if( pRange->RangeStatus == 0 )
+	{
+		if( pDev->LeakyRange < RangeLow )
+		{
 			c='_';
 		}
-		else if( pDev->LeakyRange < RangeMedium ){
+		else if( pDev->LeakyRange < RangeMedium )
+		{
 			c='=';
 		}
-		else {
+		else
+		{
 			c = '~';
 		}
 
 	}
-	else{
+	else
+	{
 		c='-';
 	}
 	return c;
 }
 
 /* Store new ranging data into the device structure, apply leaky integrator if needed */
-void Sensor_SetNewRange(VL53L0X_Dev_t *pDev, VL53L0X_RangingMeasurementData_t *pRange){
-	if( pRange->RangeStatus == 0 ){
-		if( pDev->LeakyFirst ){
+void Sensor_SetNewRange(VL53L0X_Dev_t *pDev, VL53L0X_RangingMeasurementData_t *pRange)
+{
+	if( pRange->RangeStatus == 0 )
+	{
+		if( pDev->LeakyFirst )
+		{
 			pDev->LeakyFirst = 0;
 			pDev->LeakyRange = pRange->RangeMilliMeter;
 		}
-		else{
-			pDev->LeakyRange = (pDev->LeakyRange*LeakyFactorFix8 + (256-LeakyFactorFix8)*pRange->RangeMilliMeter)>>8;
+		else
+		{
+			pDev->LeakyRange = (pDev->LeakyRange*LeakyFactorFix8 + (256 - LeakyFactorFix8)*pRange->RangeMilliMeter) >> 8;
 		}
 	}
-	else{
+	else
+	{
 		pDev->LeakyFirst = 1;
 	}
-}
-
-/**
- * Implement the ranging demo with all modes managed through the blue button (short and long press)
- * This function implements a while loop until the blue button is pressed
- * @param UseSensorsMask Mask of any sensors to use if not only one present
- * @param rangingConfig Ranging configuration to be used (same for all sensors)
- */
-int RangeDemo(RangingConfig_e rangingConfig)
-{
-	int status;
-	char StrDisplay[5];
-	char c;
-	int i;
-	int nSensorToUse;
-
-	/* Setup all sensors in Single Shot mode */
-	SetupSingleShot(rangingConfig);
-
-	/* Which sensor to use ? */
-	for(i = 0, nSensorToUse = 0; i < 6; i++)
-	{
-		//		if ((UseSensorsMask & (1 << i) ) && VL53L0XDevs[i].Present)
-		if (VL53L0XDevs[i].Present)
-		{
-			nSensorToUse++;
-		}
-	}
-	if( nSensorToUse == 0 )
-	{
-		return -1;
-	}
-
-	/* Multiple devices */
-	strcpy(StrDisplay, "    ");
-	for (i = 0; i < 6; i++)
-	{
-		if (!VL53L0XDevs[i].Present)// || (UseSensorsMask & (1 << i)) == 0)
-			continue;
-		/* Call All-In-One blocking API function */
-		status = VL53L0X_PerformSingleRangingMeasurement(&VL53L0XDevs[i],&RangingMeasurementData);
-		if( status ){
-			HandleError(ERR_DEMO_RANGE_MULTI);
-		}
-		/* Push data logging to UART */
-		trace_printf("%d,%d,%d,%d\n", VL53L0XDevs[i].Id, RangingMeasurementData.RangeStatus, RangingMeasurementData.RangeMilliMeter, RangingMeasurementData.SignalRateRtnMegaCps);
-		/* Store new ranging distance */
-		Sensor_SetNewRange(&VL53L0XDevs[i],&RangingMeasurementData);
-		/* Translate distance in bar graph (multiple device) */
-		c = RangeToLetter(&VL53L0XDevs[i],&RangingMeasurementData);
-		StrDisplay[i+1]=c;
-	}
-
-	printf(StrDisplay);
-	printf("\n");
-	return status;
 }
 
 void ResetAndDetectSensor(int SetDisplay){
@@ -491,13 +463,10 @@ void ResetAndDetectSensor(int SetDisplay){
 int telemeters_Test(void)
 {
 	int status;
-	char StrDisplay[5];
-	char c;
 	int i;
 	int nSensorToUse;
 
-	RangingConfig_e RangingConfig = LONG_RANGE;
-	DemoMode_e DemoMode = RANGE_VALUE;
+	RangingConfig_e RangingConfig = HIGH_SPEED;
 
 	/* Initialize timestamping for UART logging */
 	//	TimeStamp_Init();
@@ -518,11 +487,6 @@ int telemeters_Test(void)
 	VL53L0X_trace_config(NULL, TRACE_MODULE_NONE, TRACE_LEVEL_NONE, TRACE_FUNCTION_NONE); // No Trace
 	//VL53L0X_trace_config(NULL,TRACE_MODULE_ALL, TRACE_LEVEL_ALL, TRACE_FUNCTION_ALL); // Full trace
 
-	/* USER CODE END WHILE */
-	/* Display demo mode */
-	//      VL53L0x_SetDisplayString(DemoModeTxt[DemoMode]);
-	printf(DemoModeTxt[DemoMode]);
-	printf("\n");
 	HAL_Delay(ModeChangeDispTime);
 
 	/* Display Ranging config */
@@ -532,50 +496,51 @@ int telemeters_Test(void)
 
 	HAL_Delay(ModeChangeDispTime);
 
+	/* Setup all sensors in Single Shot mode */
+	SetupSingleShot(RangingConfig);
+
 	/* Start Ranging demo */
 	while(1)
 	{
 
-		/* Setup all sensors in Single Shot mode */
-		SetupSingleShot(RangingConfig);
+//		/* Which sensor to use ? */
+//		for(i = 0, nSensorToUse = 0; i < 6; i++)
+//		{
+//			//		if ((UseSensorsMask & (1 << i) ) && VL53L0XDevs[i].Present)
+//			if (VL53L0XDevs[i].Present)
+//			{
+//				nSensorToUse++;
+//			}
+//		}
+//		if( nSensorToUse == 0 )
+//		{
+//			return -1;
+//		}
 
-		/* Which sensor to use ? */
-		for(i = 0, nSensorToUse = 0; i < 6; i++)
-		{
-			//		if ((UseSensorsMask & (1 << i) ) && VL53L0XDevs[i].Present)
-			if (VL53L0XDevs[i].Present)
-			{
-				nSensorToUse++;
-			}
-		}
-		if( nSensorToUse == 0 )
-		{
-			return -1;
-		}
-
-		/* Multiple devices */
-		strcpy(StrDisplay, "    ");
+		/* Read 6 devices */
 		for (i = 0; i < 6; i++)
 		{
 			if (!VL53L0XDevs[i].Present)// || (UseSensorsMask & (1 << i)) == 0)
 				continue;
 			/* Call All-In-One blocking API function */
 			status = VL53L0X_PerformSingleRangingMeasurement(&VL53L0XDevs[i],&RangingMeasurementData);
-			if( status ){
+			if( status )
+			{
 				HandleError(ERR_DEMO_RANGE_MULTI);
 			}
 			/* Push data logging to UART */
-			trace_printf("%d,%d,%d,%d\n", VL53L0XDevs[i].Id, RangingMeasurementData.RangeStatus, RangingMeasurementData.RangeMilliMeter, RangingMeasurementData.SignalRateRtnMegaCps);
+//			trace_printf("%d,%d,%d,%d\n", VL53L0XDevs[i].Id, RangingMeasurementData.RangeStatus, RangingMeasurementData.RangeMilliMeter, RangingMeasurementData.SignalRateRtnMegaCps);
 			/* Store new ranging distance */
 			Sensor_SetNewRange(&VL53L0XDevs[i],&RangingMeasurementData);
-			/* Translate distance in bar graph (multiple device) */
-			c = RangeToLetter(&VL53L0XDevs[i],&RangingMeasurementData);
-			StrDisplay[i+1]=c;
 		}
+		char bargraph[100] = {0};
+		for (int c = 0; c < (RangingMeasurementData.RangeMilliMeter/40) && c < 90; c++)
+		{
+			bargraph[c] = '|';
+		}
+		printf("%s\n", bargraph);
 
-		printf(StrDisplay);
-		printf("\n");
-
-		HAL_Delay(2000);
+//		printf("------------------------------\n");
+		HAL_Delay(1);
 	}
 }
