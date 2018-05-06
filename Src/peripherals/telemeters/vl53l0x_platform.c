@@ -21,7 +21,7 @@ int _I2CWrite(VL53L0X_DEV Dev, uint8_t *pdata, uint32_t count) {
 
     status = HAL_I2C_Master_Transmit(Dev->I2cHandle, Dev->I2cDevAddr, pdata, count, i2c_time_out);
     if (status) {
-    	_Error_Handler(__FILE__, __LINE__);
+//    	_Error_Handler(__FILE__, __LINE__);
     }
     return status;
 }
@@ -32,7 +32,7 @@ int _I2CRead(VL53L0X_DEV Dev, uint8_t *pdata, uint32_t count) {
 
     status = HAL_I2C_Master_Receive(Dev->I2cHandle, Dev->I2cDevAddr|1, pdata, count, i2c_time_out);
     if (status) {
-    	_Error_Handler(__FILE__, __LINE__);
+//    	_Error_Handler(__FILE__, __LINE__);
     }
     return status;
 }

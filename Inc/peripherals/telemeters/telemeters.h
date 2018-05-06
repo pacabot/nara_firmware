@@ -25,6 +25,20 @@ enum telemeterName
 };
 
 /**
+ * 53L0X Device selector
+ *
+ * @note Most functions are using a device selector as input. ASCII 'c', 'l' or 'r' are also accepted.
+ */
+enum VL53L0x_dev_e {
+    VL53L0x_DEV_LEFT_SIDE 	=  0,   //!< side left sensor : 's'
+    VL53L0x_DEV_LEFT_DIAG  	=  1, 	//!< side left sensor : 'd'
+    VL53L0x_DEV_LEFT_FRONT	=  2,	//!< side left sensor : 'f'
+    VL53L0x_DEV_RIGHT_SIDE 	=  3,   //!< side right sensor : 's'
+    VL53L0x_DEV_RIGHT_DIAG  =  4, 	//!< side right sensor : 'd'
+    VL53L0x_DEV_RIGHT_FRONT	=  5,	//!< side right sensor : 'f'
+};
+
+/**
  * @defgroup VL53L0x_Debugging VL053L0A1  debugging
  * @{
  */
@@ -54,17 +68,6 @@ enum telemeterName
 #else
 #   define VL53L0x_ErrLog(...) (void)0
 #endif
-
-/**
- * 53L0X Device selector
- *
- * @note Most functions are using a device selector as input. ASCII 'c', 'l' or 'r' are also accepted.
- */
-enum VL53L0x_dev_e{
-    VL53L0x_DEV_LEFT =  0,    //!< left satellite device P21 header : 'l'
-    VL53L0x_DEV_CENTER  =  1, //!< center (built-in) vl053 device : 'c"
-    VL53L0x_DEV_RIGHT=  2     //!< Right satellite device P22 header : 'r'
-};
 
 /* Exported functions for telemeter.c */
 int telemeters_Test(void);

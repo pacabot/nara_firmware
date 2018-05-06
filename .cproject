@@ -101,9 +101,6 @@
 							</tool>
 						</toolChain>
 					</folderInfo>
-					<fileInfo id="fr.ac6.managedbuild.config.gnu.cross.exe.debug.2000910371.1607841606" name="vl53l0a1-l053msp.c" rcbsApplicability="disable" resourcePath="Src/peripherals/telemeters/vl53l0a1-l053msp.c" toolsToInvoke="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.736816914.1463875424">
-						<tool id="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.736816914.1463875424" name="MCU GCC Compiler" superClass="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.736816914"/>
-					</fileInfo>
 					<sourceEntries>
 						<entry excluding="CMSIS/DSP/Examples|CMSIS/DSP/Source/ComplexMathFunctions|CMSIS/DSP/Source/CommonTables|CMSIS/DSP/Source/FastMathFunctions|CMSIS/DSP/Source/FilteringFunctions|CMSIS/DSP/Source/MatrixFunctions|CMSIS/DSP/Source/StatisticsFunctions|CMSIS/DSP/Source/SupportFunctions|CMSIS/DSP/Source/TransformFunctions|CMSIS/DSP/Source/BasicMathFunctions" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Drivers"/>
 						<entry excluding="peripherals/telemeters/X-NUCLEO-53L0A1.h" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Inc"/>
@@ -237,7 +234,7 @@
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
 	<storageModule moduleId="refreshScope" versionNumber="2">
 		<configuration configurationName="Debug">
-			<resource resourceType="PROJECT" workspacePath="/NARA"/>
+			<resource resourceType="PROJECT" workspacePath="NARA"/>
 		</configuration>
 		<configuration configurationName="Release"/>
 	</storageModule>
