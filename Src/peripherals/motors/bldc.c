@@ -144,6 +144,8 @@ static __INLINE void BLDCMotorPrepareCommutation(struct motor* mot)
         BH3 = BLDC_BRIDGE_STATE_BACKWARD[comm_pos][4];
         BL3 = BLDC_BRIDGE_STATE_BACKWARD[comm_pos][5];
     }
+    else
+    	return;
 
     // **** this is with active freewheeling ****
 

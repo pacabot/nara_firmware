@@ -40,6 +40,7 @@
 #include "main.h"
 #include "stm32h7xx_hal.h"
 #include "adc.h"
+#include "dma.h"
 #include "i2c.h"
 #include "spi.h"
 #include "tim.h"
@@ -104,6 +105,7 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_ADC1_Init();
   MX_ADC3_Init();
   MX_I2C1_Init();
@@ -122,7 +124,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
   printf("HELLO NARA WORLD \n\r");
-  HAL_Delay(1000);
+  HAL_Delay(100);
 
   telemeters_Test();
 
