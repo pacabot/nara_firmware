@@ -39,7 +39,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
     static uint32_t cnt = 0;
     static uint32_t rv = MAIN_CONTROL_E_SUCCESS;
-    if (htim == &htim7) //hight time freq
+    if (htim == &htim7) //high time freq
     {
         cnt++;
         if (cnt % (int)(HI_TIME_FREQ / TELEMETERS_TIME_FREQ) == 0)
