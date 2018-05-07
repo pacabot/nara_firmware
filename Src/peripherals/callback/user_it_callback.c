@@ -21,6 +21,8 @@
 /* Peripheral declarations */
 #include "peripherals/times_base/times_base.h"
 #include "peripherals/tone/tone.h"
+#include "peripherals/telemeters/telemeters.h"
+#include "peripherals/lineSensors/lineSensors.h"
 
 /* Declarations for this module */
 #include "peripherals/callback/user_it_callback.h"
@@ -40,10 +42,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     if (htim == &htim7) //hight time freq
     {
         cnt++;
-//        if (cnt % (int)(HI_TIME_FREQ / TELEMETERS_TIME_FREQ) == 0)
-//        {
-//            telemeters_IT();
-//        }
+        if (cnt % (int)(HI_TIME_FREQ / TELEMETERS_TIME_FREQ) == 0)
+        {
+            telemeters_IT();
+        }
         if (cnt % (int)(HI_TIME_FREQ / CONTROL_TIME_FREQ) == 0)
         {
             if (rv == MAIN_CONTROL_E_SUCCESS)
@@ -57,10 +59,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
                 tone(A4, 4000);
             }
         }
-//        if (cnt % (int)(HI_TIME_FREQ / LINESENSORS_TIME_FREQ) == 0)
-//        {
-//            lineSensors_IT();
-//        }
+        if (cnt % (int)(HI_TIME_FREQ / LINESENSORS_TIME_FREQ) == 0)
+        {
+            lineSensors_IT();
+        }
         if (cnt % (int)(HI_TIME_FREQ / LOW_TIME_FREQ) == 0)
         {
             tone_IT();

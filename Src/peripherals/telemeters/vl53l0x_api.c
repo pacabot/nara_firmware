@@ -1391,7 +1391,7 @@ VL53L0X_Error VL53L0X_SetXTalkCompensationEnable(VL53L0X_DEV Dev,
 	uint8_t XTalkCompensationEnable)
 {
 	VL53L0X_Error Status = VL53L0X_ERROR_NONE;
-	FixPoint1616_t TempFix1616;
+	FixPoint1616_t TempFix1616 = 0;
 	uint16_t LinearityCorrectiveGain;
 
 	LOG_FUNCTION_START("");
@@ -1482,7 +1482,7 @@ VL53L0X_Error VL53L0X_GetXTalkCompensationRateMegaCps(VL53L0X_DEV Dev,
 {
 	VL53L0X_Error Status = VL53L0X_ERROR_NONE;
 	uint16_t Value;
-	FixPoint1616_t TempFix1616;
+	FixPoint1616_t TempFix1616 = 0;
 
 	LOG_FUNCTION_START("");
 
@@ -1793,7 +1793,7 @@ VL53L0X_Error VL53L0X_GetLimitCheckValue(VL53L0X_DEV Dev, uint16_t LimitCheckId,
 	VL53L0X_Error Status = VL53L0X_ERROR_NONE;
 	uint8_t EnableZeroValue = 0;
 	uint16_t Temp16;
-	FixPoint1616_t TempFix1616;
+	FixPoint1616_t TempFix1616 = 0;
 
 	LOG_FUNCTION_START("");
 
@@ -2718,7 +2718,7 @@ VL53L0X_Error VL53L0X_GetGpioConfig(VL53L0X_DEV Dev, uint8_t Pin,
 	VL53L0X_InterruptPolarity *pPolarity)
 {
 	VL53L0X_Error Status = VL53L0X_ERROR_NONE;
-	VL53L0X_GpioFunctionality GpioFunctionality;
+	VL53L0X_GpioFunctionality GpioFunctionality = 0;
 	uint8_t data;
 
 	LOG_FUNCTION_START("");

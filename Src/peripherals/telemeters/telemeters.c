@@ -460,11 +460,16 @@ void ResetAndDetectSensor(int SetDisplay){
 	}
 }
 
+void telemeters_IT(void)
+{
+
+}
+
 int telemeters_Test(void)
 {
 	int status;
 	int i;
-	int nSensorToUse;
+//	int nSensorToUse;
 
 	RangingConfig_e RangingConfig = HIGH_SPEED;
 

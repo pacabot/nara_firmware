@@ -114,7 +114,7 @@ typedef VL53L0X_Dev_t* VL53L0X_DEV;
  * @param field     ST structure field name
  * @param data      Data to be set
  */
-#define PALDevDataSet(Dev, field, data) (Dev->Data.field)=(data)
+#define PALDevDataSet(Dev, field, data) (Dev->Data.field) = (data)
 
 
 /**

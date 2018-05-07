@@ -49,6 +49,8 @@
 
 /* USER CODE BEGIN Includes */
 #include "peripherals/telemeters/telemeters.h"
+#include "peripherals/tone/tone.h"
+#include "peripherals/lineSensors/lineSensors.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -106,7 +108,6 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_DMA_Init();
-  MX_ADC1_Init();
   MX_ADC3_Init();
   MX_I2C1_Init();
   MX_I2C2_Init();
@@ -121,11 +122,15 @@ int main(void)
   MX_USART1_UART_Init();
   MX_TIM6_Init();
   MX_TIM7_Init();
+  MX_ADC1_Init();
+  MX_ADC2_Init();
   /* USER CODE BEGIN 2 */
 
 	printf("HELLO NARA WORLD \n\r");
 	HAL_Delay(100);
 
+	lineSensorsTest();
+	toneTest();
 	telemeters_Test();
 
   /* USER CODE END 2 */
