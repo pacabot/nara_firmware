@@ -63,7 +63,7 @@ void MX_TIM1_Init(void)
   TIM_BreakDeadTimeConfigTypeDef sBreakDeadTimeConfig;
 
   htim1.Instance = TIM1;
-  htim1.Init.Prescaler = 20;
+  htim1.Init.Prescaler = 10;
   htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim1.Init.Period = 4095;
   htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
@@ -80,7 +80,7 @@ void MX_TIM1_Init(void)
   }
 
   sSlaveConfig.SlaveMode = TIM_SLAVEMODE_TRIGGER;
-  sSlaveConfig.InputTrigger = TIM_TS_ITR1;
+  sSlaveConfig.InputTrigger = TIM_TS_ITR3;
   if (HAL_TIM_SlaveConfigSynchronization(&htim1, &sSlaveConfig) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
@@ -145,9 +145,9 @@ void MX_TIM2_Init(void)
   TIM_MasterConfigTypeDef sMasterConfig;
 
   htim2.Instance = TIM2;
-  htim2.Init.Prescaler = 126;
+  htim2.Init.Prescaler = 100;//126;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim2.Init.Period = 65535;
+  htim2.Init.Period = 1024;//65535;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
@@ -186,9 +186,9 @@ void MX_TIM4_Init(void)
   TIM_MasterConfigTypeDef sMasterConfig;
 
   htim4.Instance = TIM4;
-  htim4.Init.Prescaler = 126;
+  htim4.Init.Prescaler = 100;//126;
   htim4.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim4.Init.Period = 65535;
+  htim4.Init.Period = 1024;//65535;
   htim4.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim4.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim4) != HAL_OK)
@@ -310,7 +310,7 @@ void MX_TIM8_Init(void)
   TIM_BreakDeadTimeConfigTypeDef sBreakDeadTimeConfig;
 
   htim8.Instance = TIM8;
-  htim8.Init.Prescaler = 20;
+  htim8.Init.Prescaler = 10;
   htim8.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim8.Init.Period = 4095;
   htim8.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
@@ -327,7 +327,7 @@ void MX_TIM8_Init(void)
   }
 
   sSlaveConfig.SlaveMode = TIM_SLAVEMODE_TRIGGER;
-  sSlaveConfig.InputTrigger = TIM_TS_ITR2;
+  sSlaveConfig.InputTrigger = TIM_TS_ITR1;
   if (HAL_TIM_SlaveConfigSynchronization(&htim8, &sSlaveConfig) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
@@ -541,7 +541,7 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef* timHandle)
     PE12     ------> TIM1_CH3N
     PE13     ------> TIM1_CH3 
     */
-    GPIO_InitStruct.Pin = MOT_L_EN1E8_Pin|MOT_L_IN1_Pin|MOT_L_EN2_Pin|MOT_L_IN2_Pin 
+    GPIO_InitStruct.Pin = MOT_L_EN1_Pin|MOT_L_IN1_Pin|MOT_L_EN2_Pin|MOT_L_IN2_Pin 
                           |MOT_L_EN3_Pin|MOT_L_IN3_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
@@ -587,12 +587,12 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef* timHandle)
     PC7     ------> TIM8_CH2
     PC8     ------> TIM8_CH3 
     */
-    GPIO_InitStruct.Pin = MOT_L_EN1_Pin;
+    GPIO_InitStruct.Pin = MOT_R_EN1_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
     GPIO_InitStruct.Alternate = GPIO_AF3_TIM8;
-    HAL_GPIO_Init(MOT_L_EN1_GPIO_Port, &GPIO_InitStruct);
+    HAL_GPIO_Init(MOT_R_EN1_GPIO_Port, &GPIO_InitStruct);
 
     GPIO_InitStruct.Pin = MOT_R_EN2_Pin|MOT_R_EN3_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;

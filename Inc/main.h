@@ -79,12 +79,12 @@
 #define LINE_ADC_L_EXT_GPIO_Port GPIOA
 #define LINE_ADC_L_Pin GPIO_PIN_5
 #define LINE_ADC_L_GPIO_Port GPIOA
-#define MOT_L_EN1_Pin GPIO_PIN_7
-#define MOT_L_EN1_GPIO_Port GPIOA
+#define MOT_R_EN1_Pin GPIO_PIN_7
+#define MOT_R_EN1_GPIO_Port GPIOA
 #define PW_HALL_EN_Pin GPIO_PIN_2
 #define PW_HALL_EN_GPIO_Port GPIOB
-#define MOT_L_EN1E8_Pin GPIO_PIN_8
-#define MOT_L_EN1E8_GPIO_Port GPIOE
+#define MOT_L_EN1_Pin GPIO_PIN_8
+#define MOT_L_EN1_GPIO_Port GPIOE
 #define MOT_L_IN1_Pin GPIO_PIN_9
 #define MOT_L_IN1_GPIO_Port GPIOE
 #define MOT_L_EN2_Pin GPIO_PIN_10

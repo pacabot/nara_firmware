@@ -142,9 +142,12 @@ int main(void)
 
 	motorsInit();
 	motorSetDir(MOT_R, MOT_CCW);
-	motorSet(MOT_R, 2000);
+	motorSet(MOT_R, 0);
 	motorSetDir(MOT_L, MOT_CW);
-	motorSet(MOT_L, 800);
+	motorSet(MOT_L, 4000);
+	HAL_Delay(2000);
+	motorSetDir(MOT_L, MOT_CCW);
+	motorSet(MOT_L, 500);
 
 	//	lineSensorsTest();
 	//	telemeters_Test();

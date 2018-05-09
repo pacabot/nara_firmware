@@ -37,7 +37,14 @@ struct motor
 	uint16_t HALL1_Pin;
 	uint16_t HALL2_Pin;
 	uint16_t HALL3_Pin;
+	GPIO_TypeDef* MOT_EN1_GPIO_PORT;
+	GPIO_TypeDef* MOT_EN2_GPIO_PORT;
+	GPIO_TypeDef* MOT_EN3_GPIO_PORT;
+	uint16_t MOT_EN1_Pin;
+	uint16_t MOT_EN2_Pin;
+	uint16_t MOT_EN3_Pin;
 	uint8_t direction;
+	uint8_t commPos;
 };
 
 /* Timer Output Compare Configuration Structure declaration */
@@ -45,7 +52,7 @@ struct motor
 /* Timer Break Configuration Structure declaration */
 TIM_BreakDeadTimeConfigTypeDef sBreakConfig;
 /* Private define ------------------------------------------------------------*/
-#define MOT_L_TIM_ITR   TIM_TS_ITR2
+#define MOT_L_TIM_ITR   TIM_TS_ITR3
 #define MOT_R_TIM_ITR   TIM_TS_ITR1
 
 /* Private macro -------------------------------------------------------------*/
@@ -118,36 +125,34 @@ static __INLINE void BLDCMotorPrepareCommutation(struct motor* mot)
 			(HAL_GPIO_ReadPin(mot->HALL2_GPIO_Port, mot->HALL2_Pin) << 1) |
 			(HAL_GPIO_ReadPin(mot->HALL3_GPIO_Port, mot->HALL3_Pin) << 2));
 
-	uint16_t comm_pos = 0;
+//	printf("Hall val = %d\n", newcomm_pos);
 
-	printf("Hall val = %d\n", newcomm_pos);
-
-	if (newcomm_pos == comm_pos)
+	if (newcomm_pos == mot->commPos)
 		return;
 
-	comm_pos = newcomm_pos;
+	mot->commPos = newcomm_pos;
 
 	if(mot->direction == MOT_CW)
 	{
-		BH1 = BLDC_BRIDGE_STATE_FORWARD[comm_pos][0];  //eg : comm_pos == 1 BH1 = 0
-		BL1 = BLDC_BRIDGE_STATE_FORWARD[comm_pos][1];  //eg : comm_pos == 1 BL1 = 0
+		BH1 = BLDC_BRIDGE_STATE_FORWARD[newcomm_pos][0];
+		BL1 = BLDC_BRIDGE_STATE_FORWARD[newcomm_pos][1];
 
-		BH2 = BLDC_BRIDGE_STATE_FORWARD[comm_pos][2];  //eg : comm_pos == 1 BH2 = 0
-		BL2 = BLDC_BRIDGE_STATE_FORWARD[comm_pos][3];  //eg : comm_pos == 1 BL2 = 1
+		BH2 = BLDC_BRIDGE_STATE_FORWARD[newcomm_pos][2];
+		BL2 = BLDC_BRIDGE_STATE_FORWARD[newcomm_pos][3];
 
-		BH3 = BLDC_BRIDGE_STATE_FORWARD[comm_pos][4];  //eg : comm_pos == 1 BH3 = 1
-		BL3 = BLDC_BRIDGE_STATE_FORWARD[comm_pos][5];  //eg : comm_pos == 1 BL3 = 0
+		BH3 = BLDC_BRIDGE_STATE_FORWARD[newcomm_pos][4];
+		BL3 = BLDC_BRIDGE_STATE_FORWARD[newcomm_pos][5];
 	}
 	else if(mot->direction == MOT_CCW)
 	{
-		BH1 = BLDC_BRIDGE_STATE_BACKWARD[comm_pos][4];
-		BL1 = BLDC_BRIDGE_STATE_BACKWARD[comm_pos][5];
+		BH1 = BLDC_BRIDGE_STATE_BACKWARD[newcomm_pos][4];
+		BL1 = BLDC_BRIDGE_STATE_BACKWARD[newcomm_pos][5];
 
-		BH2 = BLDC_BRIDGE_STATE_BACKWARD[comm_pos][0];
-		BL2 = BLDC_BRIDGE_STATE_BACKWARD[comm_pos][1];
+		BH2 = BLDC_BRIDGE_STATE_BACKWARD[newcomm_pos][0];
+		BL2 = BLDC_BRIDGE_STATE_BACKWARD[newcomm_pos][1];
 
-		BH3 = BLDC_BRIDGE_STATE_BACKWARD[comm_pos][2];
-		BL3 = BLDC_BRIDGE_STATE_BACKWARD[comm_pos][3];
+		BH3 = BLDC_BRIDGE_STATE_BACKWARD[newcomm_pos][2];
+		BL3 = BLDC_BRIDGE_STATE_BACKWARD[newcomm_pos][3];
 	}
 	else
 		return;
@@ -168,7 +173,6 @@ static __INLINE void BLDCMotorPrepareCommutation(struct motor* mot)
 
 		HAL_TIM_PWM_Start(mot->htim_PWM, TIM_CHANNEL_1);
 		HAL_TIMEx_OCN_Start(mot->htim_PWM, TIM_CHANNEL_1);
-
 	} else
 	{
 		// Low side FET: OFF
@@ -249,38 +253,36 @@ void motorsInit(void)
 	right_motor.htim_PWM    = &htim8;
 	right_motor.htim_HALL   = &htim2;
 
-	left_motor.HALL1_GPIO_Port  = MOT_L_HALL1_GPIO_Port;
-	left_motor.HALL2_GPIO_Port  = MOT_L_HALL2_GPIO_Port;
-	left_motor.HALL3_GPIO_Port  = MOT_L_HALL3_GPIO_Port;
-	left_motor.HALL1_Pin        = MOT_L_HALL1_Pin;
-	left_motor.HALL2_Pin        = MOT_L_HALL2_Pin;
-	left_motor.HALL3_Pin        = MOT_L_HALL3_Pin;
-	left_motor.TIM_TS_ITR       = MOT_L_TIM_ITR;
-	left_motor.direction        = 0;
+	left_motor.HALL1_GPIO_Port   = MOT_L_HALL1_GPIO_Port;
+	left_motor.HALL2_GPIO_Port   = MOT_L_HALL2_GPIO_Port;
+	left_motor.HALL3_GPIO_Port   = MOT_L_HALL3_GPIO_Port;
+	left_motor.HALL1_Pin         = MOT_L_HALL1_Pin;
+	left_motor.HALL2_Pin         = MOT_L_HALL2_Pin;
+	left_motor.HALL3_Pin         = MOT_L_HALL3_Pin;
+	left_motor.TIM_TS_ITR        = MOT_L_TIM_ITR;
+	left_motor.direction         = 0;
 
-	right_motor.HALL1_GPIO_Port = MOT_R_HALL1_GPIO_Port;
-	right_motor.HALL2_GPIO_Port = MOT_R_HALL2_GPIO_Port;
-	right_motor.HALL3_GPIO_Port = MOT_R_HALL3_GPIO_Port;
-	right_motor.HALL1_Pin       = MOT_R_HALL1_Pin;
-	right_motor.HALL2_Pin       = MOT_R_HALL2_Pin;
-	right_motor.HALL3_Pin       = MOT_R_HALL3_Pin;
-	right_motor.TIM_TS_ITR      = MOT_R_TIM_ITR;
-	right_motor.direction       = 0;
+	right_motor.HALL1_GPIO_Port  = MOT_R_HALL1_GPIO_Port;
+	right_motor.HALL2_GPIO_Port  = MOT_R_HALL2_GPIO_Port;
+	right_motor.HALL3_GPIO_Port  = MOT_R_HALL3_GPIO_Port;
+	right_motor.HALL1_Pin        = MOT_R_HALL1_Pin;
+	right_motor.HALL2_Pin        = MOT_R_HALL2_Pin;
+	right_motor.HALL3_Pin        = MOT_R_HALL3_Pin;
+	right_motor.TIM_TS_ITR       = MOT_R_TIM_ITR;
+	right_motor.direction        = 0;
 
 
 	/*##-1- Configure the output channels ######################################*/
 	/* Common configuration for all channels */
 	sPWMConfig1.OCMode       = TIM_OCMODE_TIMING;
-	//    sPWMConfig1.OCPolarity   = TIM_OCPOLARITY_HIGH;
-	//    sPWMConfig1.OCNPolarity  = TIM_OCNPOLARITY_HIGH;
 	sPWMConfig1.OCPolarity   = TIM_OCPOLARITY_HIGH;
 	sPWMConfig1.OCNPolarity  = TIM_OCNPOLARITY_LOW;
 	sPWMConfig1.OCIdleState  = TIM_OCIDLESTATE_SET;
 	sPWMConfig1.OCNIdleState = TIM_OCNIDLESTATE_SET;
-	sPWMConfig1.OCFastMode   = TIM_OCFAST_DISABLE;
+	sPWMConfig1.OCFastMode   = TIM_OCFAST_ENABLE;
 
 	/* Set the pulse value for channel 1 */
-	sPWMConfig1.Pulse = 4095;
+	sPWMConfig1.Pulse = 0;
 
 	/* Set the pulse value for channel 2 */
 	sPWMConfig2 = sPWMConfig1;
@@ -297,15 +299,6 @@ void motorsInit(void)
 	left_motor.sPWMConfig_1     = sPWMConfig1;
 	left_motor.sPWMConfig_2     = sPWMConfig2;
 	left_motor.sPWMConfig_3     = sPWMConfig3;
-
-	//	motorSet(MOT_R, 500);
-	//	right_motor.sPWMConfig_2.OCMode = TIM_OCMODE_PWM1;
-	//	HAL_TIM_PWM_ConfigChannel(right_motor.htim_PWM, &right_motor.sPWMConfig_2, TIM_CHANNEL_2);
-	//
-	//	HAL_TIM_PWM_Start(right_motor.htim_PWM, TIM_CHANNEL_2);
-	//	HAL_TIMEx_OCN_Start(right_motor.htim_PWM, TIM_CHANNEL_2);
-	//
-	//	while(1);
 
 	/*##-2- Configure the commutation event: software event ####################*/
 	HAL_TIMEx_ConfigCommutationEvent_IT(left_motor.htim_PWM, left_motor.TIM_TS_ITR, TIM_COMMUTATION_TRGI);
@@ -375,7 +368,7 @@ void motorSet(enum motorType type, uint16_t duty_cycle)
  * @param  htim : Timer handle
  * @retval None
  */
-void HAL_TIMEx_CommutationCallback(TIM_HandleTypeDef *htim)
+void __INLINE HAL_TIMEx_CommutationCallback(TIM_HandleTypeDef *htim)
 {
 	if (htim == left_motor.htim_PWM)
 	{
