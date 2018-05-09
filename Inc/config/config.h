@@ -59,13 +59,13 @@
 /**************************************************************************************/
 /***************                 Mechanical Constants              ********************/
 /**************************************************************************************/
-#define WHEEL_DIAMETER			(50.00) 	    //Wheel diameter in millimeters
-#define WHEELS_DISTANCE			(63.20)	        //Distance between right and left center wheels
-#define	GEAR_RATIO				(50.00 / 15.00)	//wheel gear teeth per motor gear teeth
-#define MOTOR_GEAR_RATIO        (24)            //motors gear ratio
-#define ENCODER_RESOLUTION  	(6.00)	        //Number steps per revolution (IE512)
+#define WHEEL_DIAMETER			(54.00) 	    //Wheel diameter in millimeters
+#define WHEELS_DISTANCE			(60.00)	        //Distance between right and left center wheels
+#define	GEAR_RATIO				(32.00 / 14.00)	//wheel gear teeth per motor gear teeth
+#define MOTOR_GEAR_RATIO        (23)            //motors gear ratio
+#define ENCODER_RESOLUTION  	(6.00)	        //Number steps per revolution (HALLs)
 
-#define STEPS_PER_WHEEL_REV		((ENCODER_RESOLUTION) * (GEAR_RATIO))	//Number steps per wheel revolution
+#define STEPS_PER_WHEEL_REV		((ENCODER_RESOLUTION) * (GEAR_RATIO) * (MOTOR_GEAR_RATIO))	//Number steps per wheel revolution
 #define MM_PER_WHEEL_REV		((M_PI) * (WHEEL_DIAMETER))		//Number of millimeters per wheel revolution
 #define STEPS_PER_MM			((STEPS_PER_WHEEL_REV) / (MM_PER_WHEEL_REV))	//Number of steps per millimeter
 
@@ -74,15 +74,15 @@
 /**************************************************************************************/
 #define NARA_WIDTH				(98.00)
 #define NARA_LENGHT				(98.00)
-#define NARA_HEIGHT				(23.70)
-#define NARA_CENTER_BACK_DIST   (34.00)
-#define NARA_CENTER_FRONT_DIST  (Z3_LENGHT) - (Z3_CENTER_BACK_DIST))
+#define NARA_HEIGHT				(30)
+#define NARA_CENTER_BACK_DIST   (28)
+#define NARA_CENTER_FRONT_DIST  (NARA_LENGHT) - (NARA_CENTER_BACK_DIST))
 
 /**************************************************************************************/
 /***************                   Dohyo Properties                 *******************/
 /**************************************************************************************/
 #define WHITE_BAND_THICKNESS	(12.00)
-#define DOHYO_DIAMETER		    ((WALL_THICKNESS) / (2.00))
+#define DOHYO_DIAMETER		    (770)
 
 /**************************************************************************************/
 /***************                     Sumo speed                    ********************/

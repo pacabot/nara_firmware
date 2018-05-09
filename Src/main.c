@@ -136,13 +136,13 @@ int main(void)
 	ledPowerBlink(480, 20);
 	welcomeTone(100);
 
-	floorSensorsTest();
+//	floorSensorsTest();
 
 	//	toneTest();
 
-	encodersInit();
-//
-	motorsInit();
+	encodersTest();
+
+//	motorsInit();
 //	motorSetDir(MOT_R, MOT_CCW);
 //	motorSet(MOT_R, 0);
 //	motorSetDir(MOT_R, MOT_CW);

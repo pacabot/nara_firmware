@@ -27,6 +27,6 @@ void encoderRight_IT(void);
 int encodersReset(void);
 double encoderGetDist(enum encoderName encoder_name);
 double encoderGetAbsDist(enum encoderName encoder_name);
-void encoderTest(void);
+void encodersTest(void);
 
 #endif //__ENCODER_H__

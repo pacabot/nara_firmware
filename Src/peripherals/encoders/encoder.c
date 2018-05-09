@@ -28,8 +28,6 @@
 /* Declarations for this module */
 #include "peripherals/encoders/encoder.h"
 
-#define WELL_TURN_NB	10
-
 // Machine Definitions
 typedef struct
 {
@@ -37,19 +35,22 @@ typedef struct
     volatile double offset_dist;
     volatile double rel_dist;
     signed int mot_rev_cnt;
+    uint16_t oldCommPos;
     TIM_HandleTypeDef *timer;
 } encoder;
+
+static const uint8_t HALL_STEPS[8] = {4, 6, 2, 3, 1, 5, 4, 6}; // multiple step 1 and 8 for optimize code
 
 extern TIM_HandleTypeDef htim2;
 extern TIM_HandleTypeDef htim4;
 
 /**************************************************************************/
-/* Structure init                                                 */
+/* Structure init                                                         */
 /**************************************************************************/
 // Global variable
-volatile encoder left_encoder = { 0, 0, 0, 0, &htim4 };
+volatile encoder left_encoder = { 0, 0, 0, 0, 0, &htim4 };
 
-volatile encoder right_encoder = { 0, 0, 0, 0, &htim2 };
+volatile encoder right_encoder = { 0, 0, 0, 0, 0, &htim2 };
 
 /* Static functions */
 static int encoderResetDistance(encoder *enc);
@@ -59,6 +60,10 @@ static double encoderGetAbsDistance(encoder *enc);
 void encodersInit(void)
 {
 	HAL_GPIO_WritePin(PW_HALL_EN_GPIO_Port, PW_HALL_EN_Pin, 1);
+
+    HAL_TIMEx_HallSensor_Start_IT(&htim4);
+    HAL_TIMEx_HallSensor_Start_IT(&htim2);
+
     left_encoder.mot_rev_cnt = 0;
     right_encoder.mot_rev_cnt = 0;
 }
@@ -72,28 +77,54 @@ void encodersStop(void)
 
 void encoderLeft_IT(void)
 {
-    switch (__HAL_TIM_DIRECTION_STATUS(&htim4))
-    {
-        case 1:
-            left_encoder.mot_rev_cnt--;
-            break;
-        case 0:
-            left_encoder.mot_rev_cnt++;
-            break;
-    }
+	uint16_t newcomm_pos = 0;
+
+	newcomm_pos = ((HAL_GPIO_ReadPin(MOT_L_HALL1_GPIO_Port, MOT_L_HALL1_Pin)) |
+			(HAL_GPIO_ReadPin(MOT_L_HALL2_GPIO_Port, MOT_L_HALL2_Pin) << 1) |
+			(HAL_GPIO_ReadPin(MOT_L_HALL3_GPIO_Port, MOT_L_HALL3_Pin) << 2));
+
+//	printf("Hall val = %d\n", newcomm_pos);
+
+	for (int i = 1; i <= 6; i++)
+	{
+		if (newcomm_pos == HALL_STEPS[i])
+		{
+			if (left_encoder.oldCommPos == HALL_STEPS[i+1])
+				left_encoder.mot_rev_cnt++;
+			else if (left_encoder.oldCommPos == HALL_STEPS[i-1])
+				left_encoder.mot_rev_cnt--;
+//			else
+//				printf("Hall left step error\n");
+		}
+	}
+
+	left_encoder.oldCommPos = newcomm_pos;
 }
 
 void encoderRight_IT(void)
 {
-    switch (__HAL_TIM_DIRECTION_STATUS(&htim2))
-    {
-        case 1:
-            right_encoder.mot_rev_cnt--;
-            break;
-        case 0:
-            right_encoder.mot_rev_cnt++;
-            break;
-    }
+	uint16_t newcomm_pos = 0;
+
+	newcomm_pos = ((HAL_GPIO_ReadPin(MOT_R_HALL1_GPIO_Port, MOT_R_HALL1_Pin)) |
+			(HAL_GPIO_ReadPin(MOT_R_HALL2_GPIO_Port, MOT_R_HALL2_Pin) << 1) |
+			(HAL_GPIO_ReadPin(MOT_R_HALL3_GPIO_Port, MOT_R_HALL3_Pin) << 2));
+
+//	printf("Hall val = %d\n", newcomm_pos);
+
+	for (int i = 1; i <= 6; i++)
+	{
+		if (newcomm_pos == HALL_STEPS[i])
+		{
+			if (right_encoder.oldCommPos == HALL_STEPS[i+1])
+				right_encoder.mot_rev_cnt--;
+			else if (right_encoder.oldCommPos == HALL_STEPS[i-1])
+				right_encoder.mot_rev_cnt++;
+//			else
+//				printf("Hall right step error\n");
+		}
+	}
+
+	right_encoder.oldCommPos = newcomm_pos;
 }
 
 /*  encoderResetDistance
@@ -102,9 +133,7 @@ void encoderRight_IT(void)
  */
 int encoderResetDistance(encoder *enc)
 {
-    enc->offset_dist = ((((double) enc->mot_rev_cnt * ENCODER_RESOLUTION * (double) WELL_TURN_NB)
-            + ((double) __HAL_TIM_GetCounter(enc->timer))) /
-    STEPS_PER_MM);
+    enc->offset_dist = (double)enc->mot_rev_cnt / STEPS_PER_MM;
     return ENCODER_DRIVER_E_SUCCESS;
 }
 
@@ -114,10 +143,7 @@ int encoderResetDistance(encoder *enc)
  */
 double encoderGetDistance(encoder *enc)
 {
-    enc->rel_dist = (((((double) enc->mot_rev_cnt * ENCODER_RESOLUTION * (double) WELL_TURN_NB)
-            + ((double) __HAL_TIM_GetCounter(enc->timer))) /
-    STEPS_PER_MM) - (double) enc->offset_dist);
-    return enc->rel_dist;
+    return enc->rel_dist = ((double)enc->mot_rev_cnt / STEPS_PER_MM) - (double)enc->offset_dist;
 }
 
 /*  encoderGetAbsDistance
@@ -126,10 +152,7 @@ double encoderGetDistance(encoder *enc)
  */
 double encoderGetAbsDistance(encoder *enc)
 {
-    enc->abs_dist = ((((double) enc->mot_rev_cnt * ENCODER_RESOLUTION * (double) WELL_TURN_NB)
-            + ((double) __HAL_TIM_GetCounter(enc->timer))) /
-    STEPS_PER_MM);
-    return enc->abs_dist;
+    return enc->abs_dist = (double)enc->mot_rev_cnt / STEPS_PER_MM;
 }
 
 int encodersReset(void)
@@ -160,8 +183,23 @@ double encoderGetAbsDist(enum encoderName encoder_name)
 }
 
 // test encoder
-void encoderTest(void)
+void encodersTest(void)
 {
     encodersInit();
     encodersReset();
+
+    while (1)
+    {
+        printf("L_DIST_REL = %.1f  ", encoderGetDist(ENCODER_L));
+        printf("L_DIST_ABS = %.1f  ", encoderGetAbsDist(ENCODER_L));
+        printf("R_DIST_REL = %.1f  ", encoderGetDist(ENCODER_R));
+        printf("R_DIST_ABS = %.1f\n", encoderGetAbsDist(ENCODER_R));
+
+//        printf("L REV CNT = %d  ", (signed int)left_encoder.mot_rev_cnt);
+//        printf("R REV CNT = %d\n", (signed int)right_encoder.mot_rev_cnt);
+
+		printf("-----------------------------------------------------------------------\n");
+		HAL_Delay(500);
+        HAL_Delay(10);
+    }
 }
