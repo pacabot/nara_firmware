@@ -2224,8 +2224,7 @@ HAL_StatusTypeDef HAL_ADCEx_InjectedConfigChannel(ADC_HandleTypeDef* hadc, ADC_I
     {
       /* Pointer to the common control register                                 */
       tmpADC_Common = ADC3_COMMON_REGISTER(hadc);
-    }
-
+//  } //potential erro in HAL, if channel 17, 18 or 19 is activated with ADC 2 return HAL error PRE
     /* If the requested internal measurement path has already been enabled,   */
     /* bypass the configuration processing.                                   */
     if (( (sConfigInjected->InjectedChannel == ADC_CHANNEL_TEMPSENSOR) &&
@@ -2277,6 +2276,7 @@ HAL_StatusTypeDef HAL_ADCEx_InjectedConfigChannel(ADC_HandleTypeDef* hadc, ADC_I
           tmp_hal_status  = HAL_ERROR;
         }
       }
+    } //PRE
       /* If the requested internal measurement path has already been enabled  */
       /* and other ADC of the common group are enabled, internal              */
       /* measurement paths cannot be enabled.                                 */

@@ -56,7 +56,7 @@ void MX_I2C1_Init(void)
 {
 
   hi2c1.Instance = I2C1;
-  hi2c1.Init.Timing = 0x009034B6;
+  hi2c1.Init.Timing = 0x009039BB;
   hi2c1.Init.OwnAddress1 = 0;
   hi2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
   hi2c1.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
@@ -71,7 +71,7 @@ void MX_I2C1_Init(void)
 
     /**Configure Analogue filter 
     */
-  if (HAL_I2CEx_ConfigAnalogFilter(&hi2c1, I2C_ANALOGFILTER_ENABLE) != HAL_OK)
+  if (HAL_I2CEx_ConfigAnalogFilter(&hi2c1, I2C_ANALOGFILTER_DISABLE) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
@@ -122,7 +122,7 @@ void MX_I2C3_Init(void)
 {
 
   hi2c3.Instance = I2C3;
-  hi2c3.Init.Timing = 0x009034B6;
+  hi2c3.Init.Timing = 0x009039BB;
   hi2c3.Init.OwnAddress1 = 0;
   hi2c3.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
   hi2c3.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
@@ -137,7 +137,7 @@ void MX_I2C3_Init(void)
 
     /**Configure Analogue filter 
     */
-  if (HAL_I2CEx_ConfigAnalogFilter(&hi2c3, I2C_ANALOGFILTER_ENABLE) != HAL_OK)
+  if (HAL_I2CEx_ConfigAnalogFilter(&hi2c3, I2C_ANALOGFILTER_DISABLE) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
@@ -156,8 +156,8 @@ void MX_I2C4_SMBUS_Init(void)
 {
 
   hsmbus4.Instance = I2C4;
-  hsmbus4.Init.Timing = 0x10C0ECFF;
-  hsmbus4.Init.AnalogFilter = SMBUS_ANALOGFILTER_ENABLE;
+  hsmbus4.Init.Timing = 0x10C0F1FF;
+  hsmbus4.Init.AnalogFilter = SMBUS_ANALOGFILTER_DISABLE;
   hsmbus4.Init.OwnAddress1 = 2;
   hsmbus4.Init.AddressingMode = SMBUS_ADDRESSINGMODE_7BIT;
   hsmbus4.Init.DualAddressMode = SMBUS_DUALADDRESS_DISABLE;

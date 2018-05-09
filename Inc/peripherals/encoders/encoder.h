@@ -21,6 +21,7 @@ enum encoderName
 };
 
 void encodersInit(void);
+void encodersStop(void);
 void encoderLeft_IT(void);
 void encoderRight_IT(void);
 int encodersReset(void);

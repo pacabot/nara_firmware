@@ -25,6 +25,22 @@
 /* Private variables ---------------------------------------------------------*/
 static int tone_duration = 0;
 
+// Welcome
+int welcomeNote[2] = {C3, F4H};
+int welcomeDuration[2] = {1 ,1};
+
+// Au clair de la lune
+//  int music[11]={C3,C3,C3,D3,E3,D3,C3,E3,D3,D3,C3};
+//  int duree[11]={2 ,2, 2, 2, 4, 4, 2, 2, 2, 2, 8};
+
+// Marseillaise
+//  int music[18]={G2,G2,G2,C3,C3,D3,D3,G3,E3,C3,C3,E3,C3,A2,F3,D3,B2,D3};
+//  int duree[18]={1, 2, 1, 4, 4, 4, 4, 7, 1, 3, 1, 3, 1, 4, 8, 3, 1, 8}
+
+// Joyeux anniversaire
+//  int music[25]={G2,G2,A2,G2,C3,B2,G2,G2,A2,G2,D3,C3,G2,G2,G3,E3,C3,B2,A2,F3,F3,E3,C3,D3,C3};
+//  int duree[25]={2, 2, 4, 4, 4, 8, 2, 2, 4 ,4, 4, 8, 2, 2, 4, 4, 4, 4, 8, 2, 2, 4, 4, 4, 8};
+
 /* External variables --------------------------------------------------------*/
 extern TIM_HandleTypeDef htim5;
 
@@ -65,7 +81,7 @@ void tonesplayer(int *note, int *duration, int size, int tempo)
     int uwPrescalerValue;
     for (int ii = 0; ii < size; ii++)
     {
-        note_freq = note[ii];
+        note_freq = note[ii] * 2;
 
         uwPrescalerValue = (uint32_t) ((SystemCoreClock / 2) / (note_freq * 1000)) - 1;
         htim5.Instance = TIM5;
@@ -158,13 +174,19 @@ void toneSetVolulme(int volume)
     if (volume <= 0)
         volume = 0;
 
-    volume = volume * 20 / 100; //change scale
+    volume = (volume * 2) / 5; //change scale
 
     sConfigOC.OCMode = TIM_OCMODE_PWM1;
     sConfigOC.Pulse = volume;
     sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
     sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
     HAL_TIM_PWM_ConfigChannel(&htim5, &sConfigOC, TIM_CHANNEL_4);
+}
+
+void welcomeTone(int volume)
+{
+	toneSetVolulme(volume);
+	tonesplayer(welcomeNote, welcomeDuration, 2, 140);
 }
 
 void toneTest(void)

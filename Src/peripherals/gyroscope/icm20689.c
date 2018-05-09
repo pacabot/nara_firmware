@@ -41,28 +41,28 @@
 //    HAL_SPI_Transmit(&hspi3, &data, 1, 100);
 //	HAL_GPIO_WritePin(GYRO_CS_GPIO_Port, GYRO_CS_Pin, 1);
 
-static void icm20689SpiInit(const busDevice_t *bus)
-{
-    static bool hardwareInitialised = false;
+//static void icm20689SpiInit(const busDevice_t *bus)
+//{
+//    static bool hardwareInitialised = false;
+//
+//    if (hardwareInitialised) {
+//        return;
+//    }
 
-    if (hardwareInitialised) {
-        return;
-    }
-
-#ifndef USE_DUAL_GYRO
-//    IOInit(bus->busdev_u.spi.csnPin, OWNER_MPU_CS, 0);
-//    IOConfigGPIO(bus->busdev_u.spi.csnPin, SPI_IO_CS_CFG);
-//    IOHi(bus->busdev_u.spi.csnPin);
-#endif
-
-    spiSetDivisor(bus->busdev_u.spi.instance, SPI_CLOCK_STANDARD);
-
-    hardwareInitialised = true;
-}
+//#ifndef USE_DUAL_GYRO
+////    IOInit(bus->busdev_u.spi.csnPin, OWNER_MPU_CS, 0);
+////    IOConfigGPIO(bus->busdev_u.spi.csnPin, SPI_IO_CS_CFG);
+////    IOHi(bus->busdev_u.spi.csnPin);
+//#endif
+//
+//    spiSetDivisor(bus->busdev_u.spi.instance, SPI_CLOCK_STANDARD);
+//
+//    hardwareInitialised = true;
+//}
 
 uint8_t icm20689SpiDetect(const busDevice_t *bus)
 {
-    icm20689SpiInit(bus);
+//    icm20689SpiInit(bus);
 
     spiSetDivisor(bus->busdev_u.spi.instance, SPI_CLOCK_INITIALIZATON); //low speed
 

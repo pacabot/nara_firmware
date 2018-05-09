@@ -48,9 +48,14 @@
 #include "gpio.h"
 
 /* USER CODE BEGIN Includes */
+
 #include "peripherals/telemeters/telemeters.h"
 #include "peripherals/tone/tone.h"
 #include "peripherals/lineSensors/lineSensors.h"
+#include "peripherals/motors/bldc.h"
+#include "peripherals/times_base/times_base.h"
+#include "peripherals/encoders/encoder.h"
+
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -126,12 +131,23 @@ int main(void)
   MX_ADC2_Init();
   /* USER CODE BEGIN 2 */
 
+	timesBaseInit();
 	printf("HELLO NARA WORLD \n\r");
-	HAL_Delay(100);
+	ledPowerBlink(480, 20);
+	welcomeTone(100);
 
-	lineSensorsTest();
-	toneTest();
-	telemeters_Test();
+	//	toneTest();
+
+	encodersInit();
+
+	motorsInit();
+	motorSetDir(MOT_R, MOT_CCW);
+	motorSet(MOT_R, 2000);
+	motorSetDir(MOT_L, MOT_CW);
+	motorSet(MOT_L, 800);
+
+	//	lineSensorsTest();
+	//	telemeters_Test();
 
   /* USER CODE END 2 */
 

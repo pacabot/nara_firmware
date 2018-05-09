@@ -63,7 +63,7 @@ void MX_TIM1_Init(void)
   TIM_BreakDeadTimeConfigTypeDef sBreakDeadTimeConfig;
 
   htim1.Instance = TIM1;
-  htim1.Init.Prescaler = 0;
+  htim1.Init.Prescaler = 20;
   htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim1.Init.Period = 4095;
   htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
@@ -310,7 +310,7 @@ void MX_TIM8_Init(void)
   TIM_BreakDeadTimeConfigTypeDef sBreakDeadTimeConfig;
 
   htim8.Instance = TIM8;
-  htim8.Init.Prescaler = 0;
+  htim8.Init.Prescaler = 20;
   htim8.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim8.Init.Period = 4095;
   htim8.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
@@ -421,7 +421,7 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* tim_baseHandle)
     */
     GPIO_InitStruct.Pin = MOT_R_HALL1_Pin|MOT_R_HALL2_Pin|MOT_R_HALL3_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Pull = GPIO_PULLUP;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
     GPIO_InitStruct.Alternate = GPIO_AF1_TIM2;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
@@ -448,7 +448,7 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* tim_baseHandle)
     */
     GPIO_InitStruct.Pin = MOT_L_HALL1_Pin|MOT_L_HALL2_Pin|MOT_L_HALL3_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Pull = GPIO_PULLUP;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
     GPIO_InitStruct.Alternate = GPIO_AF2_TIM4;
     HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
@@ -541,8 +541,8 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef* timHandle)
     PE12     ------> TIM1_CH3N
     PE13     ------> TIM1_CH3 
     */
-    GPIO_InitStruct.Pin = MOT_R_EN1_Pin|MOT_R_IN1_Pin|MOT_R_EN2_Pin|MOT_R_IN2_Pin 
-                          |MOT_R_EN3_Pin|MOT_R_IN3_Pin;
+    GPIO_InitStruct.Pin = MOT_L_EN1E8_Pin|MOT_L_IN1_Pin|MOT_L_EN2_Pin|MOT_L_IN2_Pin 
+                          |MOT_L_EN3_Pin|MOT_L_IN3_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
@@ -594,14 +594,14 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef* timHandle)
     GPIO_InitStruct.Alternate = GPIO_AF3_TIM8;
     HAL_GPIO_Init(MOT_L_EN1_GPIO_Port, &GPIO_InitStruct);
 
-    GPIO_InitStruct.Pin = MOT_L_EN2_Pin|MOT_L_EN3_Pin;
+    GPIO_InitStruct.Pin = MOT_R_EN2_Pin|MOT_R_EN3_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
     GPIO_InitStruct.Alternate = GPIO_AF3_TIM8;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-    GPIO_InitStruct.Pin = MOT_L_IN1_Pin|MOT_L_IN2_Pin|MOT_L_IN3_Pin;
+    GPIO_InitStruct.Pin = MOT_R_IN1_Pin|MOT_R_IN2_Pin|MOT_R_IN3_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;

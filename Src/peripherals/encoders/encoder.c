@@ -58,6 +58,14 @@ static double encoderGetAbsDistance(encoder *enc);
 
 void encodersInit(void)
 {
+	HAL_GPIO_WritePin(PW_HALL_EN_GPIO_Port, PW_HALL_EN_Pin, 1);
+    left_encoder.mot_rev_cnt = 0;
+    right_encoder.mot_rev_cnt = 0;
+}
+
+void encodersStop(void)
+{
+	HAL_GPIO_WritePin(PW_HALL_EN_GPIO_Port, PW_HALL_EN_Pin, 0);
     left_encoder.mot_rev_cnt = 0;
     right_encoder.mot_rev_cnt = 0;
 }
