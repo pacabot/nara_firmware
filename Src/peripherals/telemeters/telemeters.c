@@ -191,7 +191,7 @@ int DetectSensors(int SetDisplay) {
 	int status;
 	int FinalAddress;
 
-	char PresentMsg[5]="    ";
+	char PresentMsg[10] = {0};
 	/* Reset all */
 	nDevPresent = 0;
 	for (i = 0; i < 6; i++)
@@ -269,18 +269,17 @@ int DetectSensors(int SetDisplay) {
 	/* Display detected sensor(s) */
 	if( SetDisplay )
 	{
-		for(i=0; i < 6; i++)
+		for(i = 0; i < 6; i++)
 		{
 			if( VL53L0XDevs[i].Present )
 			{
-				PresentMsg[i+1]=VL53L0XDevs[i].DevLetter;
+				PresentMsg[i]=VL53L0XDevs[i].DevLetter;
 			}
 		}
-		PresentMsg[0]=' ';
+//		PresentMsg[0]=' ';
 		//        VL53L0x_SetDisplayString(PresentMsg);
 		printf(PresentMsg);
 		printf("\n");
-		HAL_Delay(1000);
 	}
 
 	return nDevPresent;
@@ -534,18 +533,18 @@ int telemeters_Test(void)
 				HandleError(ERR_DEMO_RANGE_MULTI);
 			}
 			/* Push data logging to UART */
-//			trace_printf("%d,%d,%d,%d\n", VL53L0XDevs[i].Id, RangingMeasurementData.RangeStatus, RangingMeasurementData.RangeMilliMeter, RangingMeasurementData.SignalRateRtnMegaCps);
+			trace_printf("%d,%d,%d,%d\n", VL53L0XDevs[i].Id, RangingMeasurementData.RangeStatus, RangingMeasurementData.RangeMilliMeter, RangingMeasurementData.SignalRateRtnMegaCps);
 			/* Store new ranging distance */
 			Sensor_SetNewRange(&VL53L0XDevs[i],&RangingMeasurementData);
 		}
-		char bargraph[100] = {0};
-		for (int c = 0; c < (RangingMeasurementData.RangeMilliMeter/40) && c < 90; c++)
-		{
-			bargraph[c] = '|';
-		}
-		printf("%s\n", bargraph);
+//		char bargraph[100] = {0};
+//		for (int c = 0; c < (RangingMeasurementData.RangeMilliMeter/40) && c < 90; c++)
+//		{
+//			bargraph[c] = '|';
+//		}
+//		printf("%s\n", bargraph);
 
-//		printf("------------------------------\n");
-		HAL_Delay(1);
+		printf("------------------------------\n");
+		HAL_Delay(1000);
 	}
 }

@@ -139,18 +139,18 @@ int main(void)
 	//	toneTest();
 
 	encodersInit();
-
+//
 	motorsInit();
-	motorSetDir(MOT_R, MOT_CCW);
-	motorSet(MOT_R, 0);
-	motorSetDir(MOT_L, MOT_CW);
-	motorSet(MOT_L, 4000);
-	HAL_Delay(2000);
+//	motorSetDir(MOT_R, MOT_CCW);
+//	motorSet(MOT_R, 0);
+	motorSetDir(MOT_R, MOT_CW);
+	motorSet(MOT_R, 800);
+//	HAL_Delay(2000);
 	motorSetDir(MOT_L, MOT_CCW);
-	motorSet(MOT_L, 500);
+	motorSet(MOT_L, 800);
 
 	//	lineSensorsTest();
-	//	telemeters_Test();
+		telemeters_Test();
 
   /* USER CODE END 2 */
 
