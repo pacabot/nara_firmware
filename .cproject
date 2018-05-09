@@ -102,9 +102,9 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="CMSIS/DSP/Examples|CMSIS/DSP/Source/ComplexMathFunctions|CMSIS/DSP/Source/CommonTables|CMSIS/DSP/Source/FastMathFunctions|CMSIS/DSP/Source/FilteringFunctions|CMSIS/DSP/Source/MatrixFunctions|CMSIS/DSP/Source/StatisticsFunctions|CMSIS/DSP/Source/SupportFunctions|CMSIS/DSP/Source/TransformFunctions|CMSIS/DSP/Source/BasicMathFunctions" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Drivers"/>
+						<entry excluding="CMSIS/DSP/Source/StatisticsFunctions|CMSIS/DSP/Source/SupportFunctions|CMSIS/DSP/Examples|CMSIS/DSP/Source/CommonTables|CMSIS/DSP/Source/FilteringFunctions|CMSIS/DSP/Source/BasicMathFunctions|CMSIS/DSP/Source/MatrixFunctions|CMSIS/DSP/Source/TransformFunctions|CMSIS/DSP/Source/FastMathFunctions|CMSIS/DSP/Source/ComplexMathFunctions" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Drivers"/>
 						<entry excluding="peripherals/telemeters/X-NUCLEO-53L0A1.h" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Inc"/>
-						<entry excluding="peripherals/telemeters/vl53l0a1-l053msp.c|peripherals/telemeters/X-NUCLEO-53L0A1.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Src"/>
+						<entry excluding="peripherals/telemeters/X-NUCLEO-53L0A1.c|peripherals/telemeters/vl53l0a1-l053msp.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Src"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="startup"/>
 					</sourceEntries>
 				</configuration>
@@ -215,10 +215,10 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="startup"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Drivers"/>
-						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Src"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Inc"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Src"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="startup"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>

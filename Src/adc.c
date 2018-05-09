@@ -238,16 +238,19 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle)
     PC0     ------> ADC1_INP10
     PA4     ------> ADC1_INP18 
     */
-    GPIO_InitStruct.Pin = LINE_ADC_R_EXT_Pin;
+    GPIO_InitStruct.Pin = FLOOR_ADC_R_EXT_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(LINE_ADC_R_EXT_GPIO_Port, &GPIO_InitStruct);
+    HAL_GPIO_Init(FLOOR_ADC_R_EXT_GPIO_Port, &GPIO_InitStruct);
 
-    GPIO_InitStruct.Pin = LINE_ADC_L_EXT_Pin;
+    GPIO_InitStruct.Pin = FLOOR_ADC_L_EXT_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(LINE_ADC_L_EXT_GPIO_Port, &GPIO_InitStruct);
+    HAL_GPIO_Init(FLOOR_ADC_L_EXT_GPIO_Port, &GPIO_InitStruct);
 
+    /* ADC1 interrupt Init */
+    HAL_NVIC_SetPriority(ADC_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(ADC_IRQn);
   /* USER CODE BEGIN ADC1_MspInit 1 */
 
   /* USER CODE END ADC1_MspInit 1 */
@@ -267,16 +270,19 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle)
     PC1     ------> ADC2_INP11
     PA5     ------> ADC2_INP19 
     */
-    GPIO_InitStruct.Pin = LINE_ADC_R_Pin;
+    GPIO_InitStruct.Pin = FLOOR_ADC_R_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(LINE_ADC_R_GPIO_Port, &GPIO_InitStruct);
+    HAL_GPIO_Init(FLOOR_ADC_R_GPIO_Port, &GPIO_InitStruct);
 
-    GPIO_InitStruct.Pin = LINE_ADC_L_Pin;
+    GPIO_InitStruct.Pin = FLOOR_ADC_L_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(LINE_ADC_L_GPIO_Port, &GPIO_InitStruct);
+    HAL_GPIO_Init(FLOOR_ADC_L_GPIO_Port, &GPIO_InitStruct);
 
+    /* ADC2 interrupt Init */
+    HAL_NVIC_SetPriority(ADC_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(ADC_IRQn);
   /* USER CODE BEGIN ADC2_MspInit 1 */
 
   /* USER CODE END ADC2_MspInit 1 */
@@ -322,9 +328,18 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle)
     PC0     ------> ADC1_INP10
     PA4     ------> ADC1_INP18 
     */
-    HAL_GPIO_DeInit(LINE_ADC_R_EXT_GPIO_Port, LINE_ADC_R_EXT_Pin);
+    HAL_GPIO_DeInit(FLOOR_ADC_R_EXT_GPIO_Port, FLOOR_ADC_R_EXT_Pin);
 
-    HAL_GPIO_DeInit(LINE_ADC_L_EXT_GPIO_Port, LINE_ADC_L_EXT_Pin);
+    HAL_GPIO_DeInit(FLOOR_ADC_L_EXT_GPIO_Port, FLOOR_ADC_L_EXT_Pin);
+
+    /* ADC1 interrupt Deinit */
+  /* USER CODE BEGIN ADC1:ADC_IRQn disable */
+    /**
+    * Uncomment the line below to disable the "ADC_IRQn" interrupt
+    * Be aware, disabling shared interrupt may affect other IPs
+    */
+    /* HAL_NVIC_DisableIRQ(ADC_IRQn); */
+  /* USER CODE END ADC1:ADC_IRQn disable */
 
   /* USER CODE BEGIN ADC1_MspDeInit 1 */
 
@@ -346,9 +361,18 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle)
     PC1     ------> ADC2_INP11
     PA5     ------> ADC2_INP19 
     */
-    HAL_GPIO_DeInit(LINE_ADC_R_GPIO_Port, LINE_ADC_R_Pin);
+    HAL_GPIO_DeInit(FLOOR_ADC_R_GPIO_Port, FLOOR_ADC_R_Pin);
 
-    HAL_GPIO_DeInit(LINE_ADC_L_GPIO_Port, LINE_ADC_L_Pin);
+    HAL_GPIO_DeInit(FLOOR_ADC_L_GPIO_Port, FLOOR_ADC_L_Pin);
+
+    /* ADC2 interrupt Deinit */
+  /* USER CODE BEGIN ADC2:ADC_IRQn disable */
+    /**
+    * Uncomment the line below to disable the "ADC_IRQn" interrupt
+    * Be aware, disabling shared interrupt may affect other IPs
+    */
+    /* HAL_NVIC_DisableIRQ(ADC_IRQn); */
+  /* USER CODE END ADC2:ADC_IRQn disable */
 
   /* USER CODE BEGIN ADC2_MspDeInit 1 */
 

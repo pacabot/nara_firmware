@@ -51,10 +51,10 @@
 
 #include "peripherals/telemeters/telemeters.h"
 #include "peripherals/tone/tone.h"
-#include "peripherals/lineSensors/lineSensors.h"
 #include "peripherals/motors/bldc.h"
 #include "peripherals/times_base/times_base.h"
 #include "peripherals/encoders/encoder.h"
+#include "peripherals/floorSensors/floorSensors.h"
 
 /* USER CODE END Includes */
 
@@ -136,6 +136,8 @@ int main(void)
 	ledPowerBlink(480, 20);
 	welcomeTone(100);
 
+	floorSensorsTest();
+
 	//	toneTest();
 
 	encodersInit();
@@ -143,13 +145,12 @@ int main(void)
 	motorsInit();
 //	motorSetDir(MOT_R, MOT_CCW);
 //	motorSet(MOT_R, 0);
-	motorSetDir(MOT_R, MOT_CW);
-	motorSet(MOT_R, 800);
+//	motorSetDir(MOT_R, MOT_CW);
+//	motorSet(MOT_R, 800);
 //	HAL_Delay(2000);
-	motorSetDir(MOT_L, MOT_CCW);
-	motorSet(MOT_L, 800);
+//	motorSetDir(MOT_L, MOT_CCW);
+//	motorSet(MOT_L, 800);
 
-	//	lineSensorsTest();
 		telemeters_Test();
 
   /* USER CODE END 2 */

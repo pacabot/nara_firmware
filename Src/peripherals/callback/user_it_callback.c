@@ -6,6 +6,7 @@
  */
 /**************************************************************************/
 /* STM32 hal library declarations */
+#include <peripherals/floorSensors/floorSensors.h>
 #include "stm32h7xx_hal.h"
 
 /* General declarations */
@@ -22,9 +23,6 @@
 #include "peripherals/times_base/times_base.h"
 #include "peripherals/tone/tone.h"
 #include "peripherals/telemeters/telemeters.h"
-#include "peripherals/lineSensors/lineSensors.h"
-
-/* Declarations for this module */
 #include "peripherals/callback/user_it_callback.h"
 
 /* Private typedef -----------------------------------------------------------*/
@@ -33,6 +31,8 @@
 /* Private variables ---------------------------------------------------------*/
 /* External variables --------------------------------------------------------*/
 extern TIM_HandleTypeDef htim7;
+extern ADC_HandleTypeDef hadc1;
+extern ADC_HandleTypeDef hadc2;
 
 /* TIM callback --------------------------------------------------------------*/
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
@@ -61,7 +61,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
         }
         if (cnt % (int)(HI_TIME_FREQ / LINESENSORS_TIME_FREQ) == 0)
         {
-            lineSensors_IT();
+            floorSensors_IT();
         }
         if (cnt % (int)(HI_TIME_FREQ / LOW_TIME_FREQ) == 0)
         {
@@ -73,3 +73,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 }
 
 /* ADC callback --------------------------------------------------------------*/
+void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef *hadc)
+{
+    if (hadc == &hadc1 || hadc == &hadc2)
+    {
+        floorSensors_ADC_IT(hadc);
+    }
+}
