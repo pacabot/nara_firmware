@@ -33,8 +33,6 @@
 /* Private variables ---------------------------------------------------------*/
 /* External variables --------------------------------------------------------*/
 extern TIM_HandleTypeDef htim7;
-extern TIM_HandleTypeDef htim2;
-extern TIM_HandleTypeDef htim4;
 extern ADC_HandleTypeDef hadc1;
 extern ADC_HandleTypeDef hadc2;
 
@@ -57,7 +55,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
             else
             {
 //                telemetersStop();
-//                motorsDriverSleep(ON);
+                motorsDriverSleep(ON);
 //                motorsBrake();
                 HAL_TIM_Base_Stop_IT(&htim7);
                 tone(A4, 4000);
@@ -74,14 +72,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
             ledBlink_IT();
         }
     }
-//    if (htim == &htim4)
-//    {
-//        encoderLeft_IT();
-//    }
-//    if (htim == &htim2)
-//    {
-//        encoderRight_IT();
-//    }
 }
 
 /* ADC callback --------------------------------------------------------------*/

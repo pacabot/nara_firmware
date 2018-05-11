@@ -17,7 +17,7 @@
 #define HI_TIME_FREQ			    (20000.00) 	            //use for master inner loop
 #define LOW_TIME_FREQ               (100.00)                //low inner loop
 #define CONTROL_TIME_FREQ           (1000.00)               //use for control inner loop
-#define TELEMETERS_TIME_FREQ        ((2000.00) * (10.00))   //each telemeter use 1/10 of TELEMETERS_TIME_FREQ
+#define TELEMETERS_TIME_FREQ        ((10.00) * (12.00))     //each telemeter use 1/10 of TELEMETERS_TIME_FREQ
 #define GYRO_TIME_FREQ			    (2000.00)               //for adc injected freq
 #define LINESENSORS_TIME_FREQ	    (4000.00)               //line sensor measure frequency
 #define MOTORS_FREQ				    (23000.00)	            //motor pwm freq
@@ -59,8 +59,8 @@
 /**************************************************************************************/
 /***************                 Mechanical Constants              ********************/
 /**************************************************************************************/
-#define WHEEL_DIAMETER			(54.00) 	    //Wheel diameter in millimeters
-#define WHEELS_DISTANCE			(60.00)	        //Distance between right and left center wheels
+#define WHEEL_DIAMETER			(53.00) 	    //Wheel diameter in millimeters
+#define WHEELS_DISTANCE			(56.00)	        //Distance between right and left center wheels
 #define	GEAR_RATIO				(32.00 / 14.00)	//wheel gear teeth per motor gear teeth
 #define MOTOR_GEAR_RATIO        (23)            //motors gear ratio
 #define ENCODER_RESOLUTION  	(6.00)	        //Number steps per revolution (HALLs)
@@ -109,12 +109,12 @@
 /***************                 Physical Constants                ********************/
 /**************************************************************************************/
 #define MAX_SPEED               (1500.00)   //mm/s
-#define MAX_ACCEL               (3000.00)   //mm/s/s
+#define MAX_ACCEL               (2000.00)   //mm/s/s
 
-#define MAX_CURVE_ACCEL         (1300.00)   //mm/s
-#define MAX_CURVE_SPEED         (800.00)   //mm/s
+#define MAX_CURVE_ACCEL         (1000.00)   //mm/s
+#define MAX_CURVE_SPEED         (1000.00)   //mm/s
 
-#define MAX_ROTATE_ACCEL        (500.00)   //°/s/s perhaps wrong scale //todo verify correct scale
+#define MAX_ROTATE_ACCEL        (1000.00)   //°/s/s perhaps wrong scale //todo verify correct scale
 #define MAX_TURN_ACCEL          (4000.00)   //°/s/s perhaps wrong scale //todo verify correct scale
 
 /**************************************************************************************/
@@ -124,7 +124,7 @@
 #define PWM_RATIO_COEFF_A		((-0.50) / (6000.00))	//compute pwm ratio for limit motor voltage
 #define PWM_RATIO_COEFF_B		(1.50)			    //PWM_RATIO_COEFF_A * battery voltage + PWM_RATIO_COEFF_B = TRUE MOTOR PWM
 
-#define MOTORS_PERIOD			(1000)  //PWM scale 1000 = 100%
+#define MOTORS_PERIOD			(4095)  //PWM scale 1000 = 100%
 
 /*Calculations For Motor*/
 #define MOTORS_INDUCTANCE       (0.000065)    //H

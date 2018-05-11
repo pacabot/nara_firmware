@@ -49,6 +49,7 @@
 
 /* USER CODE BEGIN Includes */
 
+#include "application/mainApp/mainApp.h"
 #include "peripherals/telemeters/telemeters.h"
 #include "peripherals/tone/tone.h"
 #include "peripherals/motors/bldc.h"
@@ -136,22 +137,7 @@ int main(void)
 	ledPowerBlink(480, 20);
 	welcomeTone(100);
 
-//	floorSensorsTest();
-
-	//	toneTest();
-
-	encodersTest();
-
-//	motorsInit();
-//	motorSetDir(MOT_R, MOT_CCW);
-//	motorSet(MOT_R, 0);
-//	motorSetDir(MOT_R, MOT_CW);
-//	motorSet(MOT_R, 800);
-//	HAL_Delay(2000);
-//	motorSetDir(MOT_L, MOT_CCW);
-//	motorSet(MOT_L, 800);
-
-		telemeters_Test();
+	mainApp();
 
   /* USER CODE END 2 */
 

@@ -46,7 +46,7 @@ void motorSetDir(enum motorType type, enum motorDirection dir);
  * @param  motorType : MOT_L or MOT_R, Duty cycle : 0 to 4096
  * @retval None
  */
-void motorSet(enum motorType type, uint16_t duty_cycle);
+void motorSet(enum motorType type, int16_t duty_cycle);
 
 /**
  * @brief  Brake all motors

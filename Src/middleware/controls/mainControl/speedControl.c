@@ -96,9 +96,9 @@ int speedControlInit(void)
     memset(&speed_params, 0, sizeof(speed_params_struct));
     speedProfileCompute(0, 0, 0, 0);
 
-    encoder_pid_instance.Kp = 700;//638.00;
+    encoder_pid_instance.Kp = 400;//700;//638.00;
     encoder_pid_instance.Ki = 0;//0.02666 / CONTROL_TIME_FREQ;
-    encoder_pid_instance.Kd = 2 * CONTROL_TIME_FREQ;
+    encoder_pid_instance.Kd = 500;//0.01 * CONTROL_TIME_FREQ;
 
     speed_control.speed_pid.instance = &encoder_pid_instance;
 
@@ -161,6 +161,7 @@ int speedControlLoop(void)
     speed_control.speed_error = speed_control.current_distance_consign - speed_control.current_distance;//for distance control
     if (fabs(speed_control.speed_error) > MAX_SPEED_ERROR)
     {
+        printf("Speed control ERROR, error overflow = %d\n", (int)speed_control.speed_error * (int)speed_params.sign);
         ledPowerErrorBlink(1000, 150, 3);
         return SPEED_CONTROL_E_ERROR;
     }
@@ -173,11 +174,18 @@ int speedControlLoop(void)
     }
 
     speed_control.speed_command = pidController(speed_control.speed_pid.instance, speed_control.speed_error)
-            * (float) speed_params.sign;
+            * (double) speed_params.sign;
 
     //bluetoothPrintf("speed error: %d \r\n", (int)(speed_control.speed_error * 100.00));
 
     speed_control.old_distance = speed_control.current_distance;
+
+//	static int i = 0;
+//	i++;
+//	if (!(i % 500))
+//	{
+//		printf("Position cmd = %d\n", (int)speed_control.speed_command);
+//	}
 
     return SPEED_CONTROL_E_SUCCESS;
 }

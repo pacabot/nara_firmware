@@ -46,14 +46,9 @@ static enum mainControlMoveType moveType;
 static control_params_struct control_params;
 static pid_loop_struct pid_loop;
 
-double ROTATION_DIAMETER;
-
 int mainControlInit(void)
 {
     pid_loop.start_state = FALSE;
-
-//    ROTATION_DIAMETER = sqrt(pow(WHEELS_DISTANCE, 2) + pow(WHEELS_SPACING, 2));
-    ROTATION_DIAMETER = WHEELS_DISTANCE;
 
     speedControlInit();
     positionControlInit();
@@ -90,14 +85,6 @@ int mainControl_IT(void)
         return MAIN_CONTROL_E_SUCCESS;
     }
 
-    rv = speedControlLoop();
-    if (rv != SPEED_CONTROL_E_SUCCESS)
-        return rv;
-    rv = transfertFunctionLoop();
-    if (rv != TRANSFERT_FUNCTION_E_SUCCESS)
-        return rv;
-    return MAIN_CONTROL_E_SUCCESS;
-
     rv = positionControlLoop();
     if (rv != POSITION_CONTROL_E_SUCCESS)
         return rv;
@@ -107,7 +94,6 @@ int mainControl_IT(void)
     rv = transfertFunctionLoop();
     if (rv != TRANSFERT_FUNCTION_E_SUCCESS)
         return rv;
-
     return MAIN_CONTROL_E_SUCCESS;
 }
 

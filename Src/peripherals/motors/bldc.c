@@ -9,6 +9,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32h7xx_hal.h"
 #include "config/basetypes.h"
+#include "stdlib.h"
 
 /* Application declarations */
 
@@ -47,8 +48,6 @@ struct motor
 	uint8_t commPos;
 };
 
-/* Timer Output Compare Configuration Structure declaration */
-
 /* Timer Break Configuration Structure declaration */
 TIM_BreakDeadTimeConfigTypeDef sBreakConfig;
 /* Private define ------------------------------------------------------------*/
@@ -84,6 +83,8 @@ static const uint8_t BLDC_BRIDGE_STATE_FORWARD[8][6] =   // Motor step forward
 static struct motor left_motor = {0};
 static struct motor right_motor = {0};
 
+static enableMotors = 0;
+
 /* External variables --------------------------------------------------------*/
 /* Timer handler declaration */
 extern TIM_HandleTypeDef    htim1;  // Right Motor
@@ -117,6 +118,9 @@ static __INLINE void BLDCMotorPrepareCommutation(struct motor* mot)
 	// step but i had sometimes problems that the motor was running
 	// on an harmonic wave (??) when the motor was without load
 
+	if (!enableMotors)
+		return;
+
 	uint8_t BH1, BL1, BH2, BL2, BH3, BL3;
 
 	uint16_t newcomm_pos = 0;
@@ -127,8 +131,8 @@ static __INLINE void BLDCMotorPrepareCommutation(struct motor* mot)
 
 //	printf("Hall val = %d\n", newcomm_pos);
 
-	if (newcomm_pos == mot->commPos)
-		return;
+//	if (newcomm_pos == mot->commPos)
+//		return;
 
 	mot->commPos = newcomm_pos;
 
@@ -336,22 +340,34 @@ void motorSetDir(enum motorType type, enum motorDirection dir)
  * @param  motorType : MOT_L or MOT_R, Duty cycle : 0 to 4096
  * @retval None
  */
-void motorSet(enum motorType type, uint16_t duty_cycle)
+void motorSet(enum motorType type, int16_t duty_cycle)
 {
-	if (duty_cycle > 4096)
+	uint16_t absDutyCycle = 0;
+
+	if (abs(duty_cycle) > 4096)
 		return;
+
+	absDutyCycle = abs(duty_cycle);
 
 	if (type == MOT_L)
 	{
-		left_motor.sPWMConfig_1.Pulse = duty_cycle;   //Set the pulse value for channel 1
-		left_motor.sPWMConfig_2.Pulse = duty_cycle;   //Set the pulse value for channel 2
-		left_motor.sPWMConfig_3.Pulse = duty_cycle;   //Set the pulse value for channel 3
+		if (duty_cycle > 0)
+			motorSetDir(MOT_L, MOT_CCW);
+		else
+			motorSetDir(MOT_L, MOT_CW);
+		left_motor.sPWMConfig_1.Pulse = absDutyCycle;   //Set the pulse value for channel 1
+		left_motor.sPWMConfig_2.Pulse = absDutyCycle;   //Set the pulse value for channel 2
+		left_motor.sPWMConfig_3.Pulse = absDutyCycle;   //Set the pulse value for channel 3
 	}
 	else if (type == MOT_R)
 	{
-		right_motor.sPWMConfig_1.Pulse = duty_cycle;
-		right_motor.sPWMConfig_2.Pulse = duty_cycle;
-		right_motor.sPWMConfig_3.Pulse = duty_cycle;
+		if (duty_cycle > 0)
+			motorSetDir(MOT_R, MOT_CW);
+		else
+			motorSetDir(MOT_R, MOT_CCW);
+		right_motor.sPWMConfig_1.Pulse = absDutyCycle;
+		right_motor.sPWMConfig_2.Pulse = absDutyCycle;
+		right_motor.sPWMConfig_3.Pulse = absDutyCycle;
 	}
 }
 
@@ -389,9 +405,27 @@ void motorsBrake(void)
 {
 
 }
-void motorsDriverSleep(int isOn)
+void motorsDriverSleep(int isOff)
 {
+	if (isOff)
+	{
+		enableMotors = FALSE;
+		HAL_TIM_PWM_Stop(left_motor.htim_PWM, TIM_CHANNEL_1);
+		HAL_TIMEx_OCN_Stop(left_motor.htim_PWM, TIM_CHANNEL_1);
+		HAL_TIM_PWM_Stop(left_motor.htim_PWM, TIM_CHANNEL_2);
+		HAL_TIMEx_OCN_Stop(left_motor.htim_PWM, TIM_CHANNEL_2);
+		HAL_TIM_PWM_Stop(left_motor.htim_PWM, TIM_CHANNEL_3);
+		HAL_TIMEx_OCN_Stop(left_motor.htim_PWM, TIM_CHANNEL_3);
 
+		HAL_TIM_PWM_Stop(right_motor.htim_PWM, TIM_CHANNEL_1);
+		HAL_TIMEx_OCN_Stop(right_motor.htim_PWM, TIM_CHANNEL_1);
+		HAL_TIM_PWM_Stop(right_motor.htim_PWM, TIM_CHANNEL_2);
+		HAL_TIMEx_OCN_Stop(right_motor.htim_PWM, TIM_CHANNEL_2);
+		HAL_TIM_PWM_Stop(right_motor.htim_PWM, TIM_CHANNEL_3);
+		HAL_TIMEx_OCN_Stop(right_motor.htim_PWM, TIM_CHANNEL_3);
+	}
+	else
+		enableMotors = TRUE;
 }
 
 void motors_test(void)

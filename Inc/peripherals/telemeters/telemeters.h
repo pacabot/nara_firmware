@@ -70,7 +70,10 @@ enum VL53L0x_dev_e {
 #endif
 
 /* Exported functions for telemeter.c */
-void telemeters_IT(void);
 int telemeters_Test(void);
+double  getTelemeterDist(enum telemeterName telemeter_name);
+void telemeters_IT(void);
+void telemetersInit(void);
+void telemetersStart(void);
 
 #endif //__TELEMETERS_H__

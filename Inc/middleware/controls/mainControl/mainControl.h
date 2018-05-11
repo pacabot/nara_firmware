@@ -32,8 +32,6 @@ enum mainControlFollowType
     LINE_FOLLOW, WALL_FOLLOW, NO_FOLLOW
 };
 
-extern double ROTATION_DIAMETER;
-
 int                             mainControlInit(void);
 int                             mainControlStopPidLoop(void);
 int                             mainControlSartPidLoop(void);

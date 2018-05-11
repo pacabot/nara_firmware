@@ -37,6 +37,8 @@
 #include <string.h>
 #include <limits.h>
 
+#include "config/basetypes.h"
+
 #include "peripherals/telemeters/vl53l0x_api.h"
 #include "peripherals/telemeters/telemeters.h"
 
@@ -69,6 +71,51 @@ extern I2C_HandleTypeDef hi2c3;
 
 
 /* Private variables ---------------------------------------------------------*/
+enum telemeterType
+{
+	SL, DL, FL, SR, DR, FR
+};
+
+typedef struct
+{
+	double old_dist_mm;
+	int old_avrg;
+	int cell_idx;
+	int *profile;
+} telemeterConvStruct;
+
+typedef struct
+{
+	double dist_mm;
+	double delta_mm;
+	double delta_avrg;
+	double speed_mms;
+	telemeterConvStruct mm_conv;
+	int adc;
+	int adc_ref;
+	int avrg;
+	int avrg_ref;
+	char isActivated;
+	uint16_t led_gpio;
+} telemeterStruct;
+
+typedef struct
+{
+	telemeterStruct SR;
+	telemeterStruct DR;
+	telemeterStruct FR;
+	telemeterStruct SL;
+	telemeterStruct DL;
+	telemeterStruct FL;
+
+	int it_cnt;
+	int end_of_conversion;
+	char active_state;
+	int selector;
+} telemetersStruct;
+
+//static volatile telemetersStruct telemeters;
+volatile telemetersStruct telemeters;
 
 const char TxtRangeValue[]  = "rng";
 const char TxtBarGraph[]    = "bar";
@@ -276,7 +323,7 @@ int DetectSensors(int SetDisplay) {
 				PresentMsg[i]=VL53L0XDevs[i].DevLetter;
 			}
 		}
-//		PresentMsg[0]=' ';
+		//		PresentMsg[0]=' ';
 		//        VL53L0x_SetDisplayString(PresentMsg);
 		printf(PresentMsg);
 		printf("\n");
@@ -459,67 +506,50 @@ void ResetAndDetectSensor(int SetDisplay){
 	}
 }
 
-void telemeters_IT(void)
-{
-
-}
-
 int telemeters_Test(void)
 {
 	int status;
 	int i;
-//	int nSensorToUse;
-
-	RangingConfig_e RangingConfig = HIGH_SPEED;
-
-	/* Initialize timestamping for UART logging */
-	//	TimeStamp_Init();
-
-	/* USER CODE BEGIN 2 */
-	HAL_GPIO_WritePin(TOF_EN_RS_GPIO_Port, TOF_EN_RS_Pin, 0);
-	HAL_GPIO_WritePin(TOF_EN_RD_GPIO_Port, TOF_EN_RD_Pin, 0);
-	HAL_GPIO_WritePin(TOF_EN_RF_GPIO_Port, TOF_EN_RF_Pin, 0);
-	HAL_GPIO_WritePin(TOF_EN_LS_GPIO_Port, TOF_EN_LS_Pin, 0);
-	HAL_GPIO_WritePin(TOF_EN_LD_GPIO_Port, TOF_EN_LD_Pin, 0);
-	HAL_GPIO_WritePin(TOF_EN_LF_GPIO_Port, TOF_EN_LF_Pin, 0);
-
-	printf(WelcomeMsg);
-
-	ResetAndDetectSensor(1);
-
-	/* Set VL53L0X API trace level */
-	VL53L0X_trace_config(NULL, TRACE_MODULE_NONE, TRACE_LEVEL_NONE, TRACE_FUNCTION_NONE); // No Trace
-	//VL53L0X_trace_config(NULL,TRACE_MODULE_ALL, TRACE_LEVEL_ALL, TRACE_FUNCTION_ALL); // Full trace
-
-	HAL_Delay(ModeChangeDispTime);
-
-	/* Display Ranging config */
-	//      VL53L0x_SetDisplayString(RangingConfigTxt[RangingConfig]);
-	printf(RangingConfigTxt[RangingConfig]);
-	printf("\n");
-
-	HAL_Delay(ModeChangeDispTime);
-
-	/* Setup all sensors in Single Shot mode */
-	SetupSingleShot(RangingConfig);
+	double dist = 0.00;
 
 	/* Start Ranging demo */
+	telemetersInit();
+	telemetersStart();
+
+	while(1)
+	{
+		dist = getTelemeterDist(TELEMETER_SL);
+		printf("SL dist = %0.1f  ", dist);
+		dist = getTelemeterDist(TELEMETER_DL);
+		printf("DL dist = %0.1f  ", dist);
+		dist = getTelemeterDist(TELEMETER_FL);
+		printf("FL dist = %0.1f  ", dist);
+		dist = getTelemeterDist(TELEMETER_SR);
+		printf("SR dist = %0.1f  ", dist);
+		dist = getTelemeterDist(TELEMETER_DR);
+		printf("DR dist = %0.1f  ", dist);
+		dist = getTelemeterDist(TELEMETER_FR);
+		printf("FR dist = %0.1f  \n", dist);
+		printf("-------------------------------------------------------------------------------------------------------\n");
+		HAL_Delay(1000);
+	}
+
 	while(1)
 	{
 
-//		/* Which sensor to use ? */
-//		for(i = 0, nSensorToUse = 0; i < 6; i++)
-//		{
-//			//		if ((UseSensorsMask & (1 << i) ) && VL53L0XDevs[i].Present)
-//			if (VL53L0XDevs[i].Present)
-//			{
-//				nSensorToUse++;
-//			}
-//		}
-//		if( nSensorToUse == 0 )
-//		{
-//			return -1;
-//		}
+		//		/* Which sensor to use ? */
+		//		for(i = 0, nSensorToUse = 0; i < 6; i++)
+		//		{
+		//			//		if ((UseSensorsMask & (1 << i) ) && VL53L0XDevs[i].Present)
+		//			if (VL53L0XDevs[i].Present)
+		//			{
+		//				nSensorToUse++;
+		//			}
+		//		}
+		//		if( nSensorToUse == 0 )
+		//		{
+		//			return -1;
+		//		}
 
 		/* Read 6 devices */
 		for (i = 0; i < 6; i++)
@@ -537,14 +567,146 @@ int telemeters_Test(void)
 			/* Store new ranging distance */
 			Sensor_SetNewRange(&VL53L0XDevs[i],&RangingMeasurementData);
 		}
-//		char bargraph[100] = {0};
-//		for (int c = 0; c < (RangingMeasurementData.RangeMilliMeter/40) && c < 90; c++)
-//		{
-//			bargraph[c] = '|';
-//		}
-//		printf("%s\n", bargraph);
+		//		char bargraph[100] = {0};
+		//		for (int c = 0; c < (RangingMeasurementData.RangeMilliMeter/40) && c < 90; c++)
+		//		{
+		//			bargraph[c] = '|';
+		//		}
+		//		printf("%s\n", bargraph);
 
 		printf("------------------------------\n");
 		HAL_Delay(1000);
 	}
+}
+
+void telemetersInit(void)
+{
+	telemeters.FL.mm_conv.old_avrg = 0;
+	telemeters.FR.mm_conv.old_avrg = 0;
+	telemeters.DL.mm_conv.old_avrg = 0;
+	telemeters.DR.mm_conv.old_avrg = 0;
+
+	RangingConfig_e RangingConfig = HIGH_SPEED;
+
+	/* Initialize timestamping for UART logging */
+	//	TimeStamp_Init();
+
+	/* USER CODE BEGIN 2 */
+	HAL_GPIO_WritePin(TOF_EN_RS_GPIO_Port, TOF_EN_RS_Pin, 0);
+	HAL_GPIO_WritePin(TOF_EN_RD_GPIO_Port, TOF_EN_RD_Pin, 0);
+	HAL_GPIO_WritePin(TOF_EN_RF_GPIO_Port, TOF_EN_RF_Pin, 0);
+	HAL_GPIO_WritePin(TOF_EN_LS_GPIO_Port, TOF_EN_LS_Pin, 0);
+	HAL_GPIO_WritePin(TOF_EN_LD_GPIO_Port, TOF_EN_LD_Pin, 0);
+	HAL_GPIO_WritePin(TOF_EN_LF_GPIO_Port, TOF_EN_LF_Pin, 0);
+
+	ResetAndDetectSensor(1);
+
+	/* Set VL53L0X API trace level */
+	VL53L0X_trace_config(NULL, TRACE_MODULE_NONE, TRACE_LEVEL_NONE, TRACE_FUNCTION_NONE); // No Trace
+	//VL53L0X_trace_config(NULL,TRACE_MODULE_ALL, TRACE_LEVEL_ALL, TRACE_FUNCTION_ALL); // Full trace
+
+	/* Setup all sensors in Single Shot mode */
+	SetupSingleShot(RangingConfig);
+
+	/* Display Ranging config */
+	//      VL53L0x_SetDisplayString(RangingConfigTxt[RangingConfig]);
+//	printf(RangingConfigTxt[RangingConfig]);
+	printf("\n");
+}
+
+void telemetersStart(void)
+{
+	telemeters.active_state = TRUE;
+}
+
+void telemetersStop(void)
+{
+	telemeters.active_state = FALSE;
+}
+
+double getTelemeterDist(enum telemeterName telemeter_name)
+{
+	switch (telemeter_name)
+	{
+	case TELEMETER_SL:
+		return telemeters.SL.dist_mm;
+	case TELEMETER_SR:
+		return telemeters.SR.dist_mm;
+	case TELEMETER_DL:
+		return telemeters.DL.dist_mm;
+	case TELEMETER_DR:
+		return telemeters.DR.dist_mm;
+	case TELEMETER_FL:
+		return telemeters.FL.dist_mm;
+	case TELEMETER_FR:
+		return telemeters.FR.dist_mm;
+	default :
+		return 0.00;
+	}
+}
+
+void telemeters_IT(void)
+{
+	if (telemeters.active_state == FALSE)
+		return;
+
+	telemeters.selector++;
+
+	if (telemeters.selector > 12)
+	{
+		telemeters.selector = 0;
+//		telemeters.SL.isActivated = 0;
+//		telemeters.DL.isActivated = 0;
+//		telemeters.FL.isActivated = 0;
+//		telemeters.SR.isActivated = 0;
+//		telemeters.DR.isActivated = 0;
+//		telemeters.FR.isActivated = 0;
+	}
+
+	switch (telemeters.selector)
+	{
+	case 1:
+		VL53L0X_PerformSingleRangingMeasurement(&VL53L0XDevs[0],&RangingMeasurementData);
+		goto end;
+	case 2:
+		if (RangingMeasurementData.RangeStatus == 0)
+			telemeters.SL.dist_mm = RangingMeasurementData.RangeMilliMeter;
+		goto end;
+	case 3:
+		VL53L0X_PerformSingleRangingMeasurement(&VL53L0XDevs[1],&RangingMeasurementData);
+		goto end;
+	case 4:
+		if (RangingMeasurementData.RangeStatus == 0)
+			telemeters.DL.dist_mm = RangingMeasurementData.RangeMilliMeter;
+		goto end;
+	case 5:
+		VL53L0X_PerformSingleRangingMeasurement(&VL53L0XDevs[2],&RangingMeasurementData);
+		goto end;
+	case 6:
+		if (RangingMeasurementData.RangeStatus == 0)
+			telemeters.FL.dist_mm = RangingMeasurementData.RangeMilliMeter;
+		goto end;
+	case 7:
+		VL53L0X_PerformSingleRangingMeasurement(&VL53L0XDevs[3],&RangingMeasurementData);
+		goto end;
+	case 8:
+		if (RangingMeasurementData.RangeStatus == 0)
+			telemeters.SR.dist_mm = RangingMeasurementData.RangeMilliMeter;
+		goto end;
+	case 9:
+		VL53L0X_PerformSingleRangingMeasurement(&VL53L0XDevs[4],&RangingMeasurementData);
+		goto end;
+	case 10:
+		if (RangingMeasurementData.RangeStatus == 0)
+			telemeters.DR.dist_mm = RangingMeasurementData.RangeMilliMeter;
+		goto end;
+	case 11:
+		VL53L0X_PerformSingleRangingMeasurement(&VL53L0XDevs[5],&RangingMeasurementData);
+		goto end;
+	case 12:
+		if (RangingMeasurementData.RangeStatus == 0)
+			telemeters.FR.dist_mm = RangingMeasurementData.RangeMilliMeter;
+		goto end;
+	}
+	end: return;
 }

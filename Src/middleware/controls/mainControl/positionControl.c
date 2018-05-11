@@ -6,6 +6,8 @@
  @version  0.0
  */
 /**************************************************************************/
+/* STM32 hal library declarations */
+#include "stm32h7xx_hal.h"
 
 /* General declarations */
 #include <arm_math.h>
@@ -25,8 +27,8 @@
 #include <middleware/controls/mainControl/positionControl.h>
 #include <peripherals/encoders/encoder.h>
 
-#define MAX_POSITION_ERROR     40.00 //Degrees
-#define POSITION_ERROR_LIMITER 20.00 //Degrees
+#define MAX_POSITION_ERROR     90.00 //Degrees
+#define POSITION_ERROR_LIMITER 30.00 //Degrees
 
 typedef struct
 {
@@ -74,9 +76,9 @@ int positionControlInit(void)
     memset(&position_params, 0, sizeof(position_params_struct));
     positionProfileCompute(0, 0, 0);
 
-    gyro_pid_instance.Kp = 150;
+    gyro_pid_instance.Kp = 60;//150;
     gyro_pid_instance.Ki = 0;//0.01;
-    gyro_pid_instance.Kd = 4000;
+    gyro_pid_instance.Kd = 500;//0.01 * CONTROL_TIME_FREQ;
 
     //    gyro_pid_instance.Kp = zhonxCalib_data->pid_gyro.Kp;
     //    gyro_pid_instance.Ki = zhonxCalib_data->pid_gyro.Ki / CONTROL_TIME_FREQ;
@@ -84,7 +86,7 @@ int positionControlInit(void)
 
     position_control.position_pid.instance = &gyro_pid_instance;
 
-    position_control.positionType = GYRO;
+    position_control.positionType = ENCODERS;
     position_params.sign = 1;
 
     pidControllerInit(position_control.position_pid.instance);
@@ -137,11 +139,9 @@ int positionControlLoop(void)
 //    {
         ledPowerErrorBlink(300, 300, 2);
         if (position_params.sign > 0)
-            position_control.current_angle = 180.00 * (encoderGetDist(ENCODER_L) - encoderGetDist(ENCODER_R))
-            / (PI * ROTATION_DIAMETER);
+            position_control.current_angle = 180.00 * (encoderGetDist(ENCODER_L) - encoderGetDist(ENCODER_R)) / (PI * WHEELS_DISTANCE);
         else
-            position_control.current_angle = 180.00 * (encoderGetDist(ENCODER_R) - encoderGetDist(ENCODER_L))
-            / (PI * ROTATION_DIAMETER);
+            position_control.current_angle = 180.00 * (encoderGetDist(ENCODER_R) - encoderGetDist(ENCODER_L)) / (PI * WHEELS_DISTANCE);
 //    }
 
     if (mainControlGetMoveType() == ROTATE_IN_PLACE)
@@ -208,6 +208,7 @@ int positionControlLoop(void)
     position_control.position_error = position_control.current_angle_consign - position_control.current_angle;//for distance control
     if (fabs(position_control.position_error) > MAX_POSITION_ERROR)
     {
+        printf("Position control ERROR, error overflow = %d\n", (int)position_control.position_error * (int)position_params.sign);
         ledPowerErrorBlink(1000, 150, 5);
         return POSITION_CONTROL_E_ERROR;
     }
@@ -221,9 +222,16 @@ int positionControlLoop(void)
     }
 
     position_control.position_command = (pidController(position_control.position_pid.instance,
-                                                       position_control.position_error)) * (float) position_params.sign;
+                                                       position_control.position_error)) * (double) position_params.sign;
 
     position_control.old_angle = position_control.current_angle;
+
+//	static int i = 0;
+//	i++;
+//	if (!(i % 500))
+//	{
+//		printf("Position cmd = %d\n", (int)position_control.position_command);
+//	}
 
     return POSITION_CONTROL_E_SUCCESS;
 }
