@@ -9,6 +9,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32h7xx_hal.h"
 #include "config/basetypes.h"
+#include "config/config.h"
 
 /* Application declarations */
 
@@ -38,17 +39,63 @@
 
 /* Private function prototypes -----------------------------------------------*/
 static void mainPeripheralsInits(void);
+static void waitStart(void);
 
 /* Private functions ---------------------------------------------------------*/
 static void mainPeripheralsInits(void)
 {
+	telemetersInit();
 	encodersInit();
 	motorsInit();
 	floorSensorsInit();
 	mainControlInit();
-	telemetersInit();
-	telemetersStart();
 }
+
+static void waitStart(void)
+{
+	double dist = 2000;
+	while (dist > 50.00)
+	{
+		dist = getTelemeterDist(TELEMETER_FR);
+		if (dist < 20)
+			dist = 2000.00;
+		HAL_Delay(2);
+	}
+
+	tone(D3, 100);
+
+	while (dist < 100)
+	{
+		dist = getTelemeterDist(TELEMETER_FR);
+		HAL_Delay(2);
+	}
+
+	toneItMode(D5, 500);
+	//	tone(D5, 100);
+	HAL_Delay(1000);
+}
+
+static char whiteBandIsPresent(void)
+{
+	if (getFloorSensorAdc(FLOORSENSOR_EXT_L) < FLOOR_SENSOR_ADC_THESHOLD)
+	{
+		if (getFloorSensorAdc(FLOORSENSOR_L) < FLOOR_SENSOR_ADC_THESHOLD)
+		{
+			if (getFloorSensorAdc(FLOORSENSOR_EXT_R) < FLOOR_SENSOR_ADC_THESHOLD)
+				return FLOORSENSOR_ALL;
+			return FLOORSENSOR_BOTH_L;
+		}
+		return FLOORSENSOR_EXT_L;
+	}
+	if (getFloorSensorAdc(FLOORSENSOR_EXT_R) < FLOOR_SENSOR_ADC_THESHOLD)
+	{
+		if (getFloorSensorAdc(FLOORSENSOR_R) < FLOOR_SENSOR_ADC_THESHOLD)
+			return FLOORSENSOR_BOTH_R;
+		return FLOORSENSOR_EXT_R;
+	}
+	return FLOORSENSOR_NONE;
+}
+
 /* Public functions ----------------------------------------------------------*/
 /**
  * @brief  mainApp
@@ -57,33 +104,32 @@ static void mainPeripheralsInits(void)
  */
 void mainApp(void)
 {
-	double dist = 0.00;
-
 	mainPeripheralsInits();
+//	floorSensorsTest();
 //	telemeters_Test();
+	waitStart();
 
 	while(1)
 	{
-		dist = getTelemeterDist(TELEMETER_SL);
-		printf("SL dist = %0.1f  ", dist);
-		dist = getTelemeterDist(TELEMETER_DL);
-		printf("DL dist = %0.1f  ", dist);
-		dist = getTelemeterDist(TELEMETER_FL);
-		printf("FL dist = %0.1f  ", dist);
-		dist = getTelemeterDist(TELEMETER_SR);
-		printf("SR dist = %0.1f  ", dist);
-		dist = getTelemeterDist(TELEMETER_DR);
-		printf("DR dist = %0.1f  ", dist);
-		dist = getTelemeterDist(TELEMETER_FR);
-		printf("FR dist = %0.1f  \n", dist);
-		printf("-------------------------------------------------------------------------------------------------------\n");
-		HAL_Delay(1000);
+		printf ("Withe line is present = %d\n", (int)whiteBandIsPresent());
+		HAL_Delay(100);
 	}
 
+
 	basicMove(0, 0, 0, 0);
-	basicMove(0, 1000, 1000, 1000);
+	basicMove(0, 10, 100, 100);
 	while (hasMoveEnded() != TRUE);
-	basicMove(0, 1000, 1000, 0);
+	basicMove(0, 0, 0, 0);
+	//	basicMove(0, 1000, 1000, 0);
 	while(1);
+
+
+	//	while(1)
+	//	{
+	//		printf ("Withe line is present = %d\n", (int)whiteBandIsPresent());
+	//		HAL_Delay(100);
+	//	}
+	//	telemeters_Test();
+	//	floorSensorsTest();
 
 }

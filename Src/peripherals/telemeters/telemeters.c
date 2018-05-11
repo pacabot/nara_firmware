@@ -91,6 +91,7 @@ typedef struct
 	double delta_avrg;
 	double speed_mms;
 	telemeterConvStruct mm_conv;
+	VL53L0X_RangingMeasurementData_t rangingMeasurementData;
 	int adc;
 	int adc_ref;
 	int avrg;
@@ -115,7 +116,7 @@ typedef struct
 } telemetersStruct;
 
 //static volatile telemetersStruct telemeters;
-volatile telemetersStruct telemeters;
+telemetersStruct telemeters;
 
 const char TxtRangeValue[]  = "rng";
 const char TxtBarGraph[]    = "bar";
@@ -132,7 +133,7 @@ char *RangingConfigTxt[3] = {"LR", "HS", "HA"};
 /**
  * Global ranging struct
  */
-VL53L0X_RangingMeasurementData_t RangingMeasurementData;
+//VL53L0X_RangingMeasurementData_t RangingMeasurementData;
 
 
 /** leaky factor for filtered range
@@ -238,7 +239,7 @@ int DetectSensors(int SetDisplay) {
 	int status;
 	int FinalAddress;
 
-	char PresentMsg[10] = {0};
+	//	char PresentMsg[10] = {0};
 	/* Reset all */
 	nDevPresent = 0;
 	for (i = 0; i < 6; i++)
@@ -314,20 +315,20 @@ int DetectSensors(int SetDisplay) {
 		}
 	}
 	/* Display detected sensor(s) */
-	if( SetDisplay )
-	{
-		for(i = 0; i < 6; i++)
-		{
-			if( VL53L0XDevs[i].Present )
-			{
-				PresentMsg[i]=VL53L0XDevs[i].DevLetter;
-			}
-		}
-		//		PresentMsg[0]=' ';
-		//        VL53L0x_SetDisplayString(PresentMsg);
-		printf(PresentMsg);
-		printf("\n");
-	}
+	//	if( SetDisplay )
+	//	{
+	//		for(i = 0; i < 6; i++)
+	//		{
+	//			if( VL53L0XDevs[i].Present )
+	//			{
+	//				PresentMsg[i]=VL53L0XDevs[i].DevLetter;
+	//			}
+	//		}
+	//		//		PresentMsg[0]=' ';
+	//		//        VL53L0x_SetDisplayString(PresentMsg);
+	//		printf(PresentMsg);
+	//		printf("\n");
+	//	}
 
 	return nDevPresent;
 }
@@ -506,6 +507,33 @@ void ResetAndDetectSensor(int SetDisplay){
 	}
 }
 
+VL53L0X_Error VL53L0X_PerformContinuousRangingMeasurement(VL53L0X_DEV Dev,
+		VL53L0X_RangingMeasurementData_t *pRangingMeasurementData)
+{
+	VL53L0X_Error Status = VL53L0X_ERROR_NONE;
+
+
+	/* This function will do a complete single ranging
+	 * Here we fix the mode! */
+	Status = VL53L0X_SetDeviceMode(Dev, VL53L0X_DEVICEMODE_CONTINUOUS_RANGING);
+
+	if (Status == VL53L0X_ERROR_NONE)
+		Status = VL53L0X_PerformSingleMeasurement(Dev);
+
+
+	if (Status == VL53L0X_ERROR_NONE)
+		Status = VL53L0X_GetRangingMeasurementData(Dev,
+				pRangingMeasurementData);
+
+
+	if (Status == VL53L0X_ERROR_NONE)
+		Status = VL53L0X_ClearInterruptMask(Dev, 0);
+
+
+	return Status;
+}
+
+
 int telemeters_Test(void)
 {
 	int status;
@@ -513,8 +541,8 @@ int telemeters_Test(void)
 	double dist = 0.00;
 
 	/* Start Ranging demo */
-	telemetersInit();
-	telemetersStart();
+	//	telemetersInit();
+	//	telemetersStart();
 
 	while(1)
 	{
@@ -531,7 +559,7 @@ int telemeters_Test(void)
 		dist = getTelemeterDist(TELEMETER_FR);
 		printf("FR dist = %0.1f  \n", dist);
 		printf("-------------------------------------------------------------------------------------------------------\n");
-		HAL_Delay(1000);
+		HAL_Delay(300);
 	}
 
 	while(1)
@@ -552,20 +580,41 @@ int telemeters_Test(void)
 		//		}
 
 		/* Read 6 devices */
+		telemetersStop();
+
 		for (i = 0; i < 6; i++)
 		{
-			if (!VL53L0XDevs[i].Present)// || (UseSensorsMask & (1 << i)) == 0)
+			if (!VL53L0XDevs[i].Present)
 				continue;
 			/* Call All-In-One blocking API function */
-			status = VL53L0X_PerformSingleRangingMeasurement(&VL53L0XDevs[i],&RangingMeasurementData);
+			/* Here we fix the mode! */
+			status = VL53L0X_SetDeviceMode(&VL53L0XDevs[i], VL53L0X_DEVICEMODE_CONTINUOUS_RANGING);
 			if( status )
 			{
 				HandleError(ERR_DEMO_RANGE_MULTI);
 			}
+			status = VL53L0X_StartMeasurement(&VL53L0XDevs[i]);
+			if( status )
+			{
+				HandleError(ERR_DEMO_RANGE_MULTI);
+			}
+		}
+
+		for (i = 0; i < 6; i++)
+		{
+			//			if (!VL53L0XDevs[i].Present)// || (UseSensorsMask & (1 << i)) == 0)
+			//				continue;
+			//			/* Call All-In-One blocking API function */
+			//			status = VL53L0X_PerformSingleRangingMeasurement(&VL53L0XDevs[i],&RangingMeasurementData);
+			//			if( status )
+			//			{
+			//				HandleError(ERR_DEMO_RANGE_MULTI);
+			//			}
+			//			status = VL53L0X_GetRangingMeasurementData(&VL53L0XDevs[i], &RangingMeasurementData);
 			/* Push data logging to UART */
-			trace_printf("%d,%d,%d,%d\n", VL53L0XDevs[i].Id, RangingMeasurementData.RangeStatus, RangingMeasurementData.RangeMilliMeter, RangingMeasurementData.SignalRateRtnMegaCps);
+			//			trace_printf("%d,%d,%d,%d\n", VL53L0XDevs[i].Id, RangingMeasurementData.RangeStatus, RangingMeasurementData.RangeMilliMeter, RangingMeasurementData.SignalRateRtnMegaCps);
 			/* Store new ranging distance */
-			Sensor_SetNewRange(&VL53L0XDevs[i],&RangingMeasurementData);
+			//			Sensor_SetNewRange(&VL53L0XDevs[i],&RangingMeasurementData);
 		}
 		//		char bargraph[100] = {0};
 		//		for (int c = 0; c < (RangingMeasurementData.RangeMilliMeter/40) && c < 90; c++)
@@ -581,12 +630,14 @@ int telemeters_Test(void)
 
 void telemetersInit(void)
 {
+	int status;
+
 	telemeters.FL.mm_conv.old_avrg = 0;
 	telemeters.FR.mm_conv.old_avrg = 0;
 	telemeters.DL.mm_conv.old_avrg = 0;
 	telemeters.DR.mm_conv.old_avrg = 0;
 
-	RangingConfig_e RangingConfig = HIGH_SPEED;
+	RangingConfig_e RangingConfig = LONG_RANGE;
 
 	/* Initialize timestamping for UART logging */
 	//	TimeStamp_Init();
@@ -610,8 +661,34 @@ void telemetersInit(void)
 
 	/* Display Ranging config */
 	//      VL53L0x_SetDisplayString(RangingConfigTxt[RangingConfig]);
-//	printf(RangingConfigTxt[RangingConfig]);
-	printf("\n");
+	//	printf(RangingConfigTxt[RangingConfig]);
+	//	printf("\n");
+
+	for (int i = 0; i < 6; i++)
+	{
+		if (!VL53L0XDevs[i].Present)
+			continue;
+		/* Call All-In-One blocking API function */
+		/* Here we fix the mode! */
+		status = VL53L0X_SetDeviceMode(&VL53L0XDevs[i], VL53L0X_DEVICEMODE_CONTINUOUS_RANGING);
+		if( status )
+		{
+			HandleError(ERR_DEMO_RANGE_MULTI);
+		}
+		status = VL53L0X_StartMeasurement(&VL53L0XDevs[i]);
+		if( status )
+		{
+			HandleError(ERR_DEMO_RANGE_MULTI);
+		}
+	}
+	//	Sensor_SetNewRange(&VL53L0XDevs[0],&telemeters.SL.rangingMeasurementData);
+	//	Sensor_SetNewRange(&VL53L0XDevs[1],&telemeters.DL.rangingMeasurementData);
+	//	Sensor_SetNewRange(&VL53L0XDevs[2],&telemeters.FL.rangingMeasurementData);
+	//	Sensor_SetNewRange(&VL53L0XDevs[3],&telemeters.SR.rangingMeasurementData);
+	//	Sensor_SetNewRange(&VL53L0XDevs[4],&telemeters.DR.rangingMeasurementData);
+	//	Sensor_SetNewRange(&VL53L0XDevs[5],&telemeters.FR.rangingMeasurementData);
+
+	telemetersStart();
 }
 
 void telemetersStart(void)
@@ -626,23 +703,41 @@ void telemetersStop(void)
 
 double getTelemeterDist(enum telemeterName telemeter_name)
 {
+	double dist = 2000;
 	switch (telemeter_name)
 	{
 	case TELEMETER_SL:
-		return telemeters.SL.dist_mm;
+		if (telemeters.SL.rangingMeasurementData.RangeStatus == 0)
+			dist = telemeters.SL.rangingMeasurementData.RangeMilliMeter;
+		break;
 	case TELEMETER_SR:
-		return telemeters.SR.dist_mm;
+		if (telemeters.SR.rangingMeasurementData.RangeStatus == 0)
+			dist = telemeters.SR.rangingMeasurementData.RangeMilliMeter;
+		break;
 	case TELEMETER_DL:
-		return telemeters.DL.dist_mm;
+		if (telemeters.DL.rangingMeasurementData.RangeStatus == 0)
+			dist = telemeters.DL.rangingMeasurementData.RangeMilliMeter;
+		break;
 	case TELEMETER_DR:
-		return telemeters.DR.dist_mm;
+		if (telemeters.DR.rangingMeasurementData.RangeStatus == 0)
+			dist = telemeters.DR.rangingMeasurementData.RangeMilliMeter;
+		break;
 	case TELEMETER_FL:
-		return telemeters.FL.dist_mm;
+		if (telemeters.FL.rangingMeasurementData.RangeStatus == 0)
+			dist = telemeters.FL.rangingMeasurementData.RangeMilliMeter;
+		break;
 	case TELEMETER_FR:
-		return telemeters.FR.dist_mm;
+		if (telemeters.FR.rangingMeasurementData.RangeStatus == 0)
+			dist = telemeters.FR.rangingMeasurementData.RangeMilliMeter;
+		break;
 	default :
-		return 0.00;
+		return 2000.00;
 	}
+
+	if (dist < 10)
+		return 2000.00;
+	else
+		return dist;
 }
 
 void telemeters_IT(void)
@@ -652,61 +747,30 @@ void telemeters_IT(void)
 
 	telemeters.selector++;
 
-	if (telemeters.selector > 12)
+	if (telemeters.selector > 5)
 	{
 		telemeters.selector = 0;
-//		telemeters.SL.isActivated = 0;
-//		telemeters.DL.isActivated = 0;
-//		telemeters.FL.isActivated = 0;
-//		telemeters.SR.isActivated = 0;
-//		telemeters.DR.isActivated = 0;
-//		telemeters.FR.isActivated = 0;
 	}
 
 	switch (telemeters.selector)
 	{
+	case 0:
+		VL53L0X_GetRangingMeasurementData(&VL53L0XDevs[0], &telemeters.SL.rangingMeasurementData);
+		goto end;
 	case 1:
-		VL53L0X_PerformSingleRangingMeasurement(&VL53L0XDevs[0],&RangingMeasurementData);
+		VL53L0X_GetRangingMeasurementData(&VL53L0XDevs[1], &telemeters.DL.rangingMeasurementData);
 		goto end;
 	case 2:
-		if (RangingMeasurementData.RangeStatus == 0)
-			telemeters.SL.dist_mm = RangingMeasurementData.RangeMilliMeter;
+		VL53L0X_GetRangingMeasurementData(&VL53L0XDevs[2], &telemeters.FL.rangingMeasurementData);
 		goto end;
 	case 3:
-		VL53L0X_PerformSingleRangingMeasurement(&VL53L0XDevs[1],&RangingMeasurementData);
+		VL53L0X_GetRangingMeasurementData(&VL53L0XDevs[3], &telemeters.SR.rangingMeasurementData);
 		goto end;
 	case 4:
-		if (RangingMeasurementData.RangeStatus == 0)
-			telemeters.DL.dist_mm = RangingMeasurementData.RangeMilliMeter;
+		VL53L0X_GetRangingMeasurementData(&VL53L0XDevs[4], &telemeters.DR.rangingMeasurementData);
 		goto end;
 	case 5:
-		VL53L0X_PerformSingleRangingMeasurement(&VL53L0XDevs[2],&RangingMeasurementData);
-		goto end;
-	case 6:
-		if (RangingMeasurementData.RangeStatus == 0)
-			telemeters.FL.dist_mm = RangingMeasurementData.RangeMilliMeter;
-		goto end;
-	case 7:
-		VL53L0X_PerformSingleRangingMeasurement(&VL53L0XDevs[3],&RangingMeasurementData);
-		goto end;
-	case 8:
-		if (RangingMeasurementData.RangeStatus == 0)
-			telemeters.SR.dist_mm = RangingMeasurementData.RangeMilliMeter;
-		goto end;
-	case 9:
-		VL53L0X_PerformSingleRangingMeasurement(&VL53L0XDevs[4],&RangingMeasurementData);
-		goto end;
-	case 10:
-		if (RangingMeasurementData.RangeStatus == 0)
-			telemeters.DR.dist_mm = RangingMeasurementData.RangeMilliMeter;
-		goto end;
-	case 11:
-		VL53L0X_PerformSingleRangingMeasurement(&VL53L0XDevs[5],&RangingMeasurementData);
-		goto end;
-	case 12:
-		if (RangingMeasurementData.RangeStatus == 0)
-			telemeters.FR.dist_mm = RangingMeasurementData.RangeMilliMeter;
-		goto end;
+		VL53L0X_GetRangingMeasurementData(&VL53L0XDevs[5], &telemeters.FR.rangingMeasurementData);
 	}
 	end: return;
 }

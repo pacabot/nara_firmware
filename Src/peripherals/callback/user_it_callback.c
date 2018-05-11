@@ -24,6 +24,7 @@
 #include "peripherals/tone/tone.h"
 #include "peripherals/telemeters/telemeters.h"
 #include "peripherals/encoders/encoder.h"
+#include "peripherals/motors/bldc.h"
 
 #include "peripherals/callback/user_it_callback.h"
 

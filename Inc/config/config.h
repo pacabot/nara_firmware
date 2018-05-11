@@ -14,13 +14,14 @@
 /**************************************************************************************/
 /***************                 Times definitions                 ********************/
 /**************************************************************************************/
-#define HI_TIME_FREQ			    (20000.00) 	            //use for master inner loop
+#define HI_TIME_FREQ			    (40000.00) 	            //use for master inner loop
 #define LOW_TIME_FREQ               (100.00)                //low inner loop
 #define CONTROL_TIME_FREQ           (1000.00)               //use for control inner loop
-#define TELEMETERS_TIME_FREQ        ((10.00) * (12.00))     //each telemeter use 1/10 of TELEMETERS_TIME_FREQ
+#define TELEMETERS_TIME_FREQ        ((50.00) * (6.00))     //each telemeter use 1/10 of TELEMETERS_TIME_FREQ
 #define GYRO_TIME_FREQ			    (2000.00)               //for adc injected freq
-#define LINESENSORS_TIME_FREQ	    (4000.00)               //line sensor measure frequency
+#define LINESENSORS_TIME_FREQ	    (1000.00)               //line sensor measure frequency
 #define MOTORS_FREQ				    (23000.00)	            //motor pwm freq
+#define FLOORSENSORS_PWM_FREQ		(20000.00)	            //emitter led pwm frequency
 
 /**************************************************************************************/
 /***************                 Gyro definitions                  ********************/
@@ -45,6 +46,11 @@
 #define VL53L0X_LOG_ENABLE          /.enable tof telemeters logging
 #define TRACE_UART              	(1)
 #define VL53L0x_TRACE
+
+/**************************************************************************************/
+/***************                   Floor sensors                   ********************/
+/**************************************************************************************/
+#define FLOOR_SENSOR_ADC_THESHOLD	(1500)
 
 /**************************************************************************************/
 /***************                       Battery                     ********************/
@@ -109,13 +115,13 @@
 /***************                 Physical Constants                ********************/
 /**************************************************************************************/
 #define MAX_SPEED               (1500.00)   //mm/s
-#define MAX_ACCEL               (2000.00)   //mm/s/s
+#define MAX_ACCEL               (800.00)   //mm/s/s
 
-#define MAX_CURVE_ACCEL         (1000.00)   //mm/s
-#define MAX_CURVE_SPEED         (1000.00)   //mm/s
+#define MAX_CURVE_ACCEL         (500.00)   //mm/s
+#define MAX_CURVE_SPEED         (500.00)   //mm/s
 
-#define MAX_ROTATE_ACCEL        (1000.00)   //°/s/s perhaps wrong scale //todo verify correct scale
-#define MAX_TURN_ACCEL          (4000.00)   //°/s/s perhaps wrong scale //todo verify correct scale
+#define MAX_ROTATE_ACCEL        (500.00)   //°/s/s perhaps wrong scale //todo verify correct scale
+#define MAX_TURN_ACCEL          (500.00)   //°/s/s perhaps wrong scale //todo verify correct scale
 
 /**************************************************************************************/
 /***************                 Motors Constants                  ********************/

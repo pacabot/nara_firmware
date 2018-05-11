@@ -83,7 +83,7 @@ static const uint8_t BLDC_BRIDGE_STATE_FORWARD[8][6] =   // Motor step forward
 static struct motor left_motor = {0};
 static struct motor right_motor = {0};
 
-static enableMotors = 0;
+static int enableMotors = 0;
 
 /* External variables --------------------------------------------------------*/
 /* Timer handler declaration */

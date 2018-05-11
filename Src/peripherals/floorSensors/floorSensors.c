@@ -58,6 +58,7 @@ volatile floorSensors_struct floorSensors;
 
 extern ADC_HandleTypeDef hadc1;
 extern ADC_HandleTypeDef hadc2;
+extern TIM_HandleTypeDef htim3;
 
 ADC_InjectionConfTypeDef sConfigInjected;
 
@@ -78,10 +79,12 @@ GPIO_InitTypeDef GPIO_InitStruct;
 /**************************************************************************/
 void floorSensorsInit(void)
 {
+	memset((floorSensors_struct*) &floorSensors, 0, sizeof(floorSensors_struct));
+
 	HAL_ADC_Stop_IT(&hadc1);
 	HAL_ADC_Stop_IT(&hadc2);
 
-	memset((floorSensors_struct*) &floorSensors, 0, sizeof(floorSensors_struct));
+	floorSensorsStart();
 }
 
 void floorSensorsStart(void)
@@ -123,7 +126,7 @@ void __INLINE floorSensors_IT(void)
 
 	floorSensors.selector++;
 
-	if (floorSensors.selector > 1)
+	if (floorSensors.selector > 4)
 	{
 		floorSensors.selector = 0;
 	}
@@ -131,10 +134,22 @@ void __INLINE floorSensors_IT(void)
 	switch (floorSensors.selector)
 	{
 	case 0:
-		HAL_GPIO_WritePin(FLOOR_EN_GPIO_Port, FLOOR_EN_Pin, SET);
+//		HAL_GPIO_WritePin(FLOOR_EN_GPIO_Port, FLOOR_EN_Pin, SET);
+		HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
 		floorSensors.emitter_state = TRUE;
 		break;
 	case 1:
+		floorSensors.active_ADC1 = TRUE;
+		floorSensors.active_ADC2 = TRUE;
+		HAL_ADCEx_InjectedStart_IT(&hadc1);
+		HAL_ADCEx_InjectedStart_IT(&hadc2);
+		break;
+	case 3:
+		HAL_GPIO_WritePin(FLOOR_EN_GPIO_Port, FLOOR_EN_Pin, RESET);
+		HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_1);
+		floorSensors.emitter_state = FALSE;
+		break;
+	case 4:
 		floorSensors.active_ADC1 = TRUE;
 		floorSensors.active_ADC2 = TRUE;
 		HAL_ADCEx_InjectedStart_IT(&hadc1);
@@ -145,37 +160,52 @@ void __INLINE floorSensors_IT(void)
 
 void __INLINE floorSensors_ADC_IT(ADC_HandleTypeDef *hadc)
 {
-	if (hadc == &hadc1)
+	if (floorSensors.emitter_state == TRUE)
 	{
-		floorSensors.left_ext.adc_value = HAL_ADCEx_InjectedGetValue(&hadc1, ADC_INJECTED_RANK_1);
-		floorSensors.right_ext.adc_value = HAL_ADCEx_InjectedGetValue(&hadc1, ADC_INJECTED_RANK_2);
-		floorSensors.active_ADC1 = FALSE;
-	}
-	if (hadc == &hadc2)
+		if (hadc == &hadc1)
+		{
+			floorSensors.left_ext.adc_value = HAL_ADCEx_InjectedGetValue(&hadc1, ADC_INJECTED_RANK_1) + ((4095 - floorSensors.left_ext.ref_adc_value) / 2);
+			floorSensors.right_ext.adc_value = HAL_ADCEx_InjectedGetValue(&hadc1, ADC_INJECTED_RANK_2) + ((4095 - floorSensors.right_ext.ref_adc_value) / 2);
+			floorSensors.active_ADC1 = FALSE;
+		}
+		if (hadc == &hadc2)
+		{
+			floorSensors.right.adc_value = HAL_ADCEx_InjectedGetValue(&hadc2, ADC_INJECTED_RANK_2) + ((4095 - floorSensors.right.ref_adc_value) / 2);
+			floorSensors.left.adc_value = HAL_ADCEx_InjectedGetValue(&hadc2, ADC_INJECTED_RANK_1) + ((4095 - floorSensors.left.ref_adc_value) / 2);
+			floorSensors.active_ADC2 = FALSE;
+		}
+			if (floorSensors.active_ADC1 == FALSE && floorSensors.active_ADC2 == FALSE)
+			{
+				HAL_GPIO_WritePin(FLOOR_EN_GPIO_Port, FLOOR_EN_Pin, RESET);
+				HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_1);
+				floorSensors.emitter_state = FALSE;
+			}
+	} else
 	{
-		floorSensors.right.adc_value = HAL_ADCEx_InjectedGetValue(&hadc2, ADC_INJECTED_RANK_1);
-		floorSensors.left.adc_value = HAL_ADCEx_InjectedGetValue(&hadc2, ADC_INJECTED_RANK_2);
-		floorSensors.active_ADC2 = FALSE;
-	}
-	if (floorSensors.active_ADC1 == FALSE && floorSensors.active_ADC2 == FALSE)
-	{
-		HAL_GPIO_WritePin(FLOOR_EN_GPIO_Port, FLOOR_EN_Pin, RESET);
-		floorSensors.emitter_state = FALSE;
+		if (hadc == &hadc1)
+		{
+			floorSensors.left_ext.ref_adc_value = HAL_ADCEx_InjectedGetValue(&hadc1, ADC_INJECTED_RANK_1);
+			floorSensors.right_ext.ref_adc_value = HAL_ADCEx_InjectedGetValue(&hadc1, ADC_INJECTED_RANK_2);
+		}
+		if (hadc == &hadc2)
+		{
+			floorSensors.right.ref_adc_value = HAL_ADCEx_InjectedGetValue(&hadc2, ADC_INJECTED_RANK_1);
+			floorSensors.left.ref_adc_value = HAL_ADCEx_InjectedGetValue(&hadc2, ADC_INJECTED_RANK_2);
+		}
 	}
 }
 
 void floorSensorsTest(void)
 {
 	floorSensorsInit();
-	floorSensorsStart();
 
 	while(1)
 	{
-		printf("L_EXT = %d  ",  (int)getFloorSensorAdc(FLOORSENSOR_EXT_L));
-		printf("L = %d  ",      (int)getFloorSensorAdc(FLOORSENSOR_L));
-		printf("R = %d  ",      (int)getFloorSensorAdc(FLOORSENSOR_R));
-		printf("R_EXT = %d  \n",(int)getFloorSensorAdc(FLOORSENSOR_EXT_R));
-		printf("----------------------------------------------------------\n");
+		printf("L_EXT = %d  L_EXT_REF = %d   ",  	(int)getFloorSensorAdc(FLOORSENSOR_EXT_L), 	(int)floorSensors.left_ext.ref_adc_value);
+		printf("L = %d  L_REF = %d   ",    		(int)getFloorSensorAdc(FLOORSENSOR_L), 		(int)floorSensors.left.ref_adc_value);
+		printf("R = %d  R_REF = %d   ",      		(int)getFloorSensorAdc(FLOORSENSOR_R), 		(int)floorSensors.right.ref_adc_value);
+		printf("R_EXT = %d  R_EXT_REF = %d\n",	(int)getFloorSensorAdc(FLOORSENSOR_EXT_R), 	(int)floorSensors.right_ext.ref_adc_value);
+		printf("------------------------------------------------------------------------------------------------------------------------\n");
 		HAL_Delay(500);
 	}
 

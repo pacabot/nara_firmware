@@ -130,9 +130,11 @@ int main(void)
   MX_TIM7_Init();
   MX_ADC1_Init();
   MX_ADC2_Init();
+  MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
 
 	timesBaseInit();
+	toneInit();
 	printf("HELLO NARA WORLD \n\r");
 	ledPowerBlink(480, 20);
 	welcomeTone(100);

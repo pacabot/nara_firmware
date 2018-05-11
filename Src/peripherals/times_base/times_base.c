@@ -31,6 +31,9 @@ static volatile int32_t Blink[3] = { 500, 10, 0 };
 
 /* External variables --------------------------------------------------------*/
 extern TIM_HandleTypeDef htim7;
+extern TIM_HandleTypeDef htim3;
+
+TIM_OC_InitTypeDef sConfig;
 
 /**
  * @brief  Period elapsed callback in non blocking mode
@@ -56,7 +59,7 @@ void timesBaseInit(void)
      Prescaler = ((SystemCoreClock /2) /10 KHz) - 1
      ----------------------------------------------------------------------- */
 
-    /* Compute the prescaler value to have TIM7 counter clock equal to 1 KHz */
+    /* Compute the prescaler value */
     uwPrescalerValue = (uint32_t) ((SystemCoreClock / 2) / (HI_TIME_FREQ * 2));
 
     htim7.Instance = TIM7;
@@ -72,65 +75,39 @@ void timesBaseInit(void)
 
     HAL_TIM_Base_Start_IT(&htim7);
 
-//    /*## Configure the TIM peripheral for ADC123 injected trigger ####################*/
-//    /* -----------------------------------------------------------------------
-//     Use TIM5 for start Injected conversion on ADC1 (gyro rate).
-//     Use TIM5 for start Injected conversion on ADC2 (not use).
-//     Use TIM5 for start Injected conversion on ADC3 (not use).
-//     ----------------------------------------------------------------------- */
-//
-//    /* Compute the prescaler value to have TIM5 counter clock equal to 4 KHz */
-//    uwPrescalerValue = (uint32_t) ((SystemCoreClock / 2) / (GYRO_TIME_FREQ * 100));
-//
-//    htim5.Instance = TIM5;
-//    htim5.Init.Prescaler = uwPrescalerValue;
-//    htim5.Init.CounterMode = TIM_COUNTERMODE_UP;
-//    htim5.Init.Period = 100 - 1;
-//    htim5.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-//    //    htim5.Init.RepetitionCounter = 0x0;
-//    HAL_TIM_Base_Init(&htim5);
-//
-//    sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
-//    HAL_TIM_ConfigClockSource(&htim5, &sClockSourceConfig);
-//
-//    sMasterConfig.MasterOutputTrigger = TIM_TRGO_UPDATE; //TIM_TRGO_UPDATE see adc.c => ADC1 injected section
-//    sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
-//    HAL_TIMEx_MasterConfigSynchronization(&htim5, &sMasterConfig);
-//
-//    //    HAL_TIM_Base_Start_IT(&htim5);
-//    HAL_TIM_Base_Start(&htim5);
-//
-//    /*## Configure the TIM peripheral for ADC1 regular trigger ####################*/
-//    /* -----------------------------------------------------------------------
-//     Use TIM4 for start Regular conversion on ADC1 (vbat, gyro_temp, internal_temps, internal vbat).
-//     ----------------------------------------------------------------------- */
-//
-//    /* Compute the prescaler value to have TIM4 counter clock equal to 1 Hz */
-//    uwPrescalerValue = (uint32_t) ((SystemCoreClock / 2) / (MULTIMMETER_TIME_FREQ * 10000));
-//
-//    htim4.Instance = TIM4;
-//    htim4.Init.Prescaler = uwPrescalerValue;
-//    htim4.Init.CounterMode = TIM_COUNTERMODE_UP;
-//    htim4.Init.Period = 10000 - 1;
-//    htim4.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-//    HAL_TIM_Base_Init(&htim4);
-//
-//    sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
-//    HAL_TIM_ConfigClockSource(&htim4, &sClockSourceConfig);
-//
-//    HAL_TIM_OC_Init(&htim4);
-//
-//    sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
-//    sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
-//    HAL_TIMEx_MasterConfigSynchronization(&htim4, &sMasterConfig);
-//
-//    sConfigOC.OCMode = TIM_OCMODE_TOGGLE;
-//    sConfigOC.Pulse = 1;
-//    sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
-//    sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
-//    HAL_TIM_OC_ConfigChannel(&htim4, &sConfigOC, TIM_CHANNEL_4);
-//
-//    HAL_TIM_OC_Start_IT(&htim4, TIM_CHANNEL_4);
+    /* Compute the prescaler value */
+    uwPrescalerValue = (uint32_t) ((SystemCoreClock / 2) / (FLOORSENSORS_PWM_FREQ * 2));
+
+    htim3.Instance = TIM3;
+
+    htim3.Init.Prescaler         = uwPrescalerValue;
+    htim3.Init.Period            = 100;
+    htim3.Init.ClockDivision     = 0;
+    htim3.Init.CounterMode       = TIM_COUNTERMODE_UP;
+    htim3.Init.RepetitionCounter = 0;
+    if (HAL_TIM_PWM_Init(&htim3) != HAL_OK)
+    {
+      /* Initialization Error */
+      Error_Handler();
+    }
+
+    /*##-2- Configure the PWM channels #########################################*/
+    /* Common configuration for all channels */
+    sConfig.OCMode       = TIM_OCMODE_PWM1;
+    sConfig.OCPolarity   = TIM_OCPOLARITY_HIGH;
+    sConfig.OCFastMode   = TIM_OCFAST_DISABLE;
+    sConfig.OCNPolarity  = TIM_OCNPOLARITY_HIGH;
+    sConfig.OCNIdleState = TIM_OCNIDLESTATE_RESET;
+
+    sConfig.OCIdleState  = TIM_OCIDLESTATE_RESET;
+
+    /* Set the pulse value for channel 1 */
+    sConfig.Pulse = 50;
+    if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfig, TIM_CHANNEL_1) != HAL_OK)
+    {
+      /* Configuration Error */
+      Error_Handler();
+    }
 }
 
 char timeOut(unsigned char second, int loop_nb)

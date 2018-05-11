@@ -75,5 +75,6 @@ double  getTelemeterDist(enum telemeterName telemeter_name);
 void telemeters_IT(void);
 void telemetersInit(void);
 void telemetersStart(void);
+void telemetersStop(void);
 
 #endif //__TELEMETERS_H__
